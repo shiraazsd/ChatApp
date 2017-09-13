@@ -1,0 +1,155 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+Author: Prasanna Bhale
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+    xmlns:f="http://java.sun.com/jsf/core">
+
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+	<title>JSF and WebSocket Demo using JEE7</title>
+	<link href="#{request.contextPath}/css/bootstrap.min.css"
+		rel="stylesheet" />
+	<link href="#{request.contextPath}/css/custom.css" rel="stylesheet"
+		type="text/css" />
+	<link href="#{request.contextPath}/testchat.css" rel="stylesheet"
+		type="text/css" />
+
+	<link href="#{request.contextPath}/fonts/css/font-awesome.min.css"
+		rel="stylesheet" type="text/css" />
+
+
+
+</h:head>
+
+<h:body>
+	<div class="row">
+		<span class="col-md-2">	
+			<p:dataTable var="user" value="#{userBean.users}" id="usersDataTable">		 
+			    <p:column headerText="USERS">
+			        <h:outputText value="#{user.email}" onChange=""/>
+			    </p:column>
+			</p:dataTable>	
+					
+			<h:inputHidden id="user" value="#{request.remoteUser}"></h:inputHidden>
+		</span>
+		<span class="col-md-6">
+			<input type="text" size="15" id="to" placeholder="To" /> 
+		</span>
+	</div>
+	<div class="row">
+	
+		<div class="container" id="chatBoxContainer">
+<!-- 			<div class="row chat-window col-xs-5 col-md-3" id="chat_window_1"
+				style="margin-left: 10px;">
+				<div class="col-xs-12 col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading top-bar">
+							<div class="col-md-8 col-xs-8">
+								<h3 class="panel-title">
+									<span class="glyphicon glyphicon-comment"></span> Chat User1
+								</h3>
+							</div>
+							<div class="col-md-4 col-xs-4" style="text-align: right;">
+								<a href="#"><span id="minim_chat_window"
+									class="glyphicon glyphicon-minus icon_minim"></span></a> <a href="#"><span
+									class="glyphicon glyphicon-remove icon_close"
+									data-id="chat_window_1"></span></a>
+							</div>
+						</div>
+						<div class="panel-body msg_container_base">
+						</div>
+						<div class="panel-footer">
+							<div class="input-group">
+								<input id="btn-input" type="text"
+									class="form-control input-sm chat_input"
+									placeholder="Write your message here..." /> <span
+									class="input-group-btn">
+									<button class="btn btn-primary btn-sm" id="btn-chat">Send</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>	 -->
+		</div>
+	</div>
+
+
+	<script src="#{request.contextPath}/js/jquery.min.js"></script>
+	<script src="#{request.contextPath}/testchat.js"></script>
+	<script
+		src="#{request.contextPath}/js/modules/chatsocket/chatsocket.js"></script>
+	<script type="text/javascript"
+		src="#{request.contextPath}/js/nicescroll/jquery.nicescroll.min.js"></script>
+	<script src="#{request.contextPath}/js/bootstrap.min.js"></script>
+	<script type="text/javascript"
+		src="#{request.contextPath}/js/custom.js"></script>
+	<script type="text/javascript"
+		src="#{request.contextPath}/js/chatplugin.js"></script>
+	<script type="text/javascript"
+		src="#{request.contextPath}/js/mustache.js"></script>
+
+	<script>
+		$(document).ready(function() {
+			chatsocket.initEvent();
+		});
+		$('#usersDataTable td').click( function() {
+			$('#to').val(($( this ).text()));
+		var selectedUserEmail = $( this ).text();
+		var selectedUser = selectedUserEmail;
+		var template = $("#chat-window-template").html();
+		selectedUser = selectedUser.replace("@", '').replace('.', '');
+		var data = { chat_window_id : selectedUser, chat_user : selectedUser, chat_user_email : selectedUserEmail};	
+
+		var html = Mustache.render(template, data);	
+			
+		$('#chatBoxContainer').append(html);
+		chatsocket.initEvent();
+	
+		});	
+	</script>
+	<script type="text/template" id="chat-window-template">
+			<div class="row chat-window col-xs-5 col-md-3" id="chat_window_{{chat_user}}"
+				style="margin-left: 300px;">
+				<div class="col-xs-12 col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading top-bar">
+							<div class="col-md-8 col-xs-8">
+								<h3 class="panel-title">
+									<span class="glyphicon glyphicon-comment"></span> {{chat_user}}
+								</h3>
+							</div>
+							<div class="col-md-4 col-xs-4" style="text-align: right;">
+								<a href="#"><span id="minim_{{chat_user}}"
+									class="glyphicon glyphicon-minus icon_minim"></span></a> <a href="#"><span
+									class="glyphicon glyphicon-remove icon_close"
+									data-id="chat_window_{{chat_user}}"></span></a>
+							</div>
+						</div>
+						<div class="panel-body msg_container_base" id="msg_panel_{{chat_user}}">
+						</div>
+						<div class="panel-footer">
+							<div class="input-group">
+								<input id="btn-input-{{chat_user}}" type="text"
+									class="form-control input-sm chat_input"
+									placeholder="Write your message here..." /> <span
+									class="input-group-btn">
+									<button class="btn btn-primary btn-sm" id="btn-chat" data-id-email="{{chat_user_email}}" data-id="btn-input-{{chat_user}}" data-id-msg-panel="msg_panel_{{chat_user}}">Send</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+	</script>			
+
+</h:body>
+</html>

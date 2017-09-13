@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+
+	<Resource name="jdbc/chat" auth="Container" type="javax.sql.DataSource"
+		maxActive="50" maxIdle="30" maxWait="10000" username="scorpio"
+		password="t50610732" driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://db4free.net:3307/scorpiodatabase" />
+
+</Context>

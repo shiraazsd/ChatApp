@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+	<title>JSF and WebSocket Demo using JEE7</title>
+
+</h:head>
+
+<h:body>
+	<ui:composition template="./../layout/default.xhtml">
+		<ui:define name="content">
+
+			<div class="row">
+				<div class="col-md-12 col-sm-12 col-xs-12">
+					<div class="page-title">
+						<div class="title_left">
+							<h3>
+								<i class="fa fa-money"></i> Chat
+							</h3>
+						</div>
+					</div>
+
+					<div class="clearfix"></div>
+
+					<div class="row">
+						<div class="col-md-12 col-sm-12 col-xs-12">
+							<div class="x_panel">
+
+								<div class="x_title" inline="text">
+									<h2 inline="text">chat</h2>
+
+									<a class="btn btn-primary pull-right" data-toggle="modal"
+										data-target="#modalFilterRec"><i class="fa fa-search"></i>
+										Buscar</a>
+									<div class="clearfix"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</ui:define>
+
+	</ui:composition>
+</h:body>
+</html>
