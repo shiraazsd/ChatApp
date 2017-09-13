@@ -35,8 +35,10 @@ var chatsocket = function() {
 
 		ws.onmessage = function(event) {
 			var message = JSON.parse(event.data);
-			//log.innerHTML += message.from + " : " + message.content + "\n";
-			$(".panel-body").append(messageReceive(message.content));
+			var idSuffix = getElementIdSuffix(message.from);
+			createNewChatBox(message.from);
+			var msg_panel_id = getMsgPanelId(idSuffix);			
+			$("#"+msg_panel_id).append(messageReceive(message.content));
 		};
 
 	};
@@ -46,7 +48,14 @@ var chatsocket = function() {
 		var to = element.attr("data-id-email");
 		var msg_panel_id = element.attr("data-id-msg-panel");
 		
+		//Validating the inputs
 		var content = $("#"+inputElementId).val();
+		//Reset the input fields
+		$("#"+inputElementId).val('');
+		if(!content) {
+			return;
+		}
+
 		var json = JSON.stringify({
 			"to" : to,
 			"content" : content
@@ -58,16 +67,26 @@ var chatsocket = function() {
 
 	var eventClick = function() {
 		console.log($("#btn-input").val());
-		$("#btn-chat").click(function() {
+		$('.btn-chat-send').unbind('click');		
+		$('.chat_input').unbind('keypress');
+
+		$('.btn-chat-send').click(function() {
 			console.log();
 			sendMessage($(this));
 		});
+		$('.chat_input').keypress(function(e) {
+		    if(e.which == 13) {
+		    	$(this).closest('.input-group').find('.btn-chat-send').click();
+		    }
+		});		
+		
 	};
 
 	return {
 		initEvent : function() {
 			connect();
+		}, initAction : function() {
 			eventClick();
-		}
+		}		
 	}
 }();

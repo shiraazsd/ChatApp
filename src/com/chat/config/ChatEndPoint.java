@@ -22,7 +22,7 @@ public class ChatEndPoint {
 	@OnOpen
 	public void onOpen(Session session, @PathParam("username") String username) throws IOException, EncodeException {
 		log.info(session.getId() + " connected!");
-
+		System.out.print("Active endpoints : " +  chatEndpoints);
 		this.session = session;
 		this.username = username;
 		chatEndpoints.add(this);
@@ -59,11 +59,11 @@ public class ChatEndPoint {
 	}
 
 	private static void broadcast(Message message) throws IOException, EncodeException {
-		for (ChatEndPoint endpoint : chatEndpoints) {
-			synchronized (endpoint) {
-				endpoint.session.getBasicRemote().sendObject(message);
-			}
-		}
+//		for (ChatEndPoint endpoint : chatEndpoints) {
+//			synchronized (endpoint) {
+//				endpoint.session.getBasicRemote().sendObject(message);
+//			}
+//		}
 	}
 
 	private static void sendMessageToOneUser(Message message) throws IOException, EncodeException {
