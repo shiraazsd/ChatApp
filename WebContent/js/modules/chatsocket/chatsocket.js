@@ -31,8 +31,11 @@ var chatsocket = function() {
 
 	var connect = function() {
 		var user = $("#user").val();
-		ws = new WebSocket("ws://localhost:8090/EnterpriceChat/chat/" + user);
-
+		try{
+			ws = new WebSocket("ws://localhost:8090/EnterpriceChat/chat/" + user);
+		} catch(err) {			
+			console.log("error");
+		}
 		ws.onmessage = function(event) {
 			var message = JSON.parse(event.data);
 			var idSuffix = getElementIdSuffix(message.from);
@@ -66,7 +69,6 @@ var chatsocket = function() {
 	};
 
 	var eventClick = function() {
-		console.log($("#btn-input").val());
 		$('.btn-chat-send').unbind('click');		
 		$('.chat_input').unbind('keypress');
 

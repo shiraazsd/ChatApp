@@ -3,7 +3,6 @@ $(document).ready(function() {
 });
 
 
-
 var getElementIdSuffix = function(email) {
 	var suffix = email.replace("@", '').replace('.', '');
 	return suffix;
@@ -35,6 +34,20 @@ $('#usersDataTable td').click( function() {
 	createNewChatBox(selectedUserEmail);
 })
 
+var reArrangeChatBox = function() {
+	var marginOffset = 320;
+	$("#chatBoxContainer").children().each(function(index,value){
+		var margin = marginOffset*index;
+		$(value).css('margin-left', margin);
+	});	
+}
+
+var closeFirstChatBox = function() {
+	var firstChild = $("#chatBoxContainer").children()[0];
+	$(firstChild).find('.icon_close').click();
+}
+
+
 var createNewChatBox = function(selectedUserEmail) {
 	var template = $("#chat-window-template").html();
 	var idSuffix = getElementIdSuffix(selectedUserEmail);
@@ -45,15 +58,15 @@ var createNewChatBox = function(selectedUserEmail) {
 		return;
 	}	
 	if(chatBoxCount >= maxChat) {
-		return;
+		closeFirstChatBox();		
 	}				
-	var margin = 320*chatBoxCount;
 	
-	var data = { chat_window_id : getChatWindowId(idSuffix), chat_user_email : selectedUserEmail, minim_id : getMinimId(idSuffix), msg_panel_id : getMsgPanelId(idSuffix), btn_input_id : getBtnInputId(idSuffix), margin_value : margin};	
+	var data = { chat_window_id : getChatWindowId(idSuffix), chat_user_email : selectedUserEmail, minim_id : getMinimId(idSuffix), msg_panel_id : getMsgPanelId(idSuffix), btn_input_id : getBtnInputId(idSuffix)};	
 	
 	var html = Mustache.render(template, data);		
 	
 	$('#chatBoxContainer').append(html);
+	reArrangeChatBox();
 	chatsocket.initAction();
 
 };	

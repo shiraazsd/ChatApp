@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.event.ValueChangeEvent;
 
 import com.chat.core.dao.ex.SQLException;
 import com.chat.core.domain.User;
@@ -52,18 +51,22 @@ public class UserBean implements Serializable{
 		  System.out.print("UserBean Created !");
 	  }
 
-
-	public void userClicked(ValueChangeEvent e) {
-		System.out.print("Changed !");			
-	}		
-
-	  public void getAllUsers() {
+	  public List<User> getAllAvailableUsers(String currentUserEmail) {
+		  List<User> userList = null;		  
 		  try {
-			List<User> userList = userRespository.findAll();
-			System.out.print(userList);
+			userList = userRespository.findAll();
+			if(currentUserEmail == null){
+				return userList;
+			}
+			//Remove the current user if logged in
+			int index = userList.indexOf(new User(currentUserEmail));
+			if(index != -1){
+				userList.remove(index);
+			}
 		} catch (SQLException e) {
 			System.out.println("Unable to fetch user list");
 			e.printStackTrace();
 		}
+		  return userList;
 	  }
 }

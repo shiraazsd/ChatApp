@@ -22,7 +22,6 @@ public class ChatEndPoint {
 	@OnOpen
 	public void onOpen(Session session, @PathParam("username") String username) throws IOException, EncodeException {
 		log.info(session.getId() + " connected!");
-		System.out.print("Active endpoints : " +  chatEndpoints);
 		this.session = session;
 		this.username = username;
 		chatEndpoints.add(this);
@@ -32,6 +31,9 @@ public class ChatEndPoint {
 		message.setFrom(username);
 		message.setContent("connected!");
 		broadcast(message);
+
+		System.out.print("Active endpoints count : " +  chatEndpoints.size());
+		System.out.print("Active endpoints : " +  chatEndpoints);		
 	}
 
 	@OnMessage
@@ -87,4 +89,10 @@ public class ChatEndPoint {
 		return null;
 	}
 
+	@Override
+	public String toString() {
+		return "ChatEndPoint [session=" + session + ", username=" + username
+				+ "]";
+	}
+	
 }
