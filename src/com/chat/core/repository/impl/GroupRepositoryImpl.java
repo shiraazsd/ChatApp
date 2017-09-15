@@ -54,8 +54,7 @@ public class GroupRepositoryImpl extends Dao implements GroupRepository {
 	}
 
 	@Override
-	public Group create(Group domain) throws SQLException {
-		return null;
+	public void create(Group domain) throws SQLException {
 	}
 
 	@Override

@@ -57,6 +57,21 @@ public class UserRepositoryImpl extends Dao implements UserRepository {
 	}
 
 	@Override
+	public User getUserByEmail(String email) throws SQLException {
+		try {
+			sql = "select u.id_user, u.id_roler, u.email, u.password, u.status from user u where u.email = :email";
+			Map<String, Object> parameters = new HashMap<>();
+			parameters.put(":email", "'"+email+"'");
+			return getUserByRS(getResulsetOf(ReplaceQueryParams(sql, parameters)));
+		} catch (Exception e) {
+			LOGGER.error("fail getUserByEmail user :", email, e);
+			throw new SQLException("fail getUserByEmail user", e);
+		} finally {
+			closeConections();
+		}
+	}
+	
+	@Override
 	public User findById(Long id) throws SQLException {
 		try {
 			sql = "select u.id_user, u.id_roler, u.email, u.password, u.status from user u where u.id_user = :id_user";
@@ -72,7 +87,7 @@ public class UserRepositoryImpl extends Dao implements UserRepository {
 	}
 
 	@Override
-	public User create(User domain) throws SQLException {
+	public void create(User domain) throws SQLException {
 		try {
 			sql = "insert user into (id_roler, email, password, status) values (:id_roler, :email, :password, :status)"
 					+ " select u.id_user, u.id_roler, u.email, u.password, u.status from user u where u.email = :email";
@@ -81,7 +96,7 @@ public class UserRepositoryImpl extends Dao implements UserRepository {
 			parameters.put(":password", "'" + domain.getPassword() + "'");
 			parameters.put(":id_roler", domain.getRoler().getIdRoler());
 			parameters.put(":status", Constants.ACTIVE);
-			return getUserByRS(getResulsetOf(ReplaceQueryParams(sql, parameters)));
+			getUserByRS(getResulsetOf(ReplaceQueryParams(sql, parameters)));
 		} catch (Exception e) {
 			LOGGER.error("fail create user :", domain.getEmail(), e);
 			throw new SQLException("fail create user", e);

@@ -9,11 +9,17 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import com.chat.core.dao.ex.SQLException;
+import com.chat.core.repository.MessageRepository;
+import com.chat.core.repository.impl.MessageRepositoryImpl;
+
 @ServerEndpoint(value = "/chat/{username}", decoders = MessageDecoder.class, encoders = MessageEncoder.class)
 public class ChatEndPoint {
 
 	private final Logger log = Logger.getLogger(getClass().getName());
 
+	private MessageRepository messageRespoitory = MessageRepositoryImpl.getInstance();
+	
 	private Session session;
 	private String username;
 	private static final Set<ChatEndPoint> chatEndpoints = new CopyOnWriteArraySet<>();
@@ -32,8 +38,8 @@ public class ChatEndPoint {
 		message.setContent("connected!");
 		broadcast(message);
 
-		System.out.print("Active endpoints count : " +  chatEndpoints.size());
-		System.out.print("Active endpoints : " +  chatEndpoints);		
+		System.out.println("Active endpoints count : " +  chatEndpoints.size());
+		System.out.println("Active endpoints : " +  chatEndpoints);		
 	}
 
 	@OnMessage
@@ -42,6 +48,16 @@ public class ChatEndPoint {
 		System.out.println("onMessage : " + message.toString());
 		message.setFrom(users.get(session.getId()));
 		sendMessageToOneUser(message);
+		persistMessage(message);
+	}
+	
+	private void persistMessage(Message message) {
+		try {
+			messageRespoitory.create(message.getFrom(), message.getTo(), message.getContent());
+		} catch (SQLException e) {
+			System.out.print("Unable to retrieve message");
+			e.printStackTrace();
+		}		
 	}
 
 	@OnClose

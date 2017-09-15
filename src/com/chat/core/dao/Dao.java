@@ -57,12 +57,30 @@ public class Dao {
 
 	protected ResultSet getResulsetOf(String SQL) throws SQLException{
 		try {
+			System.out.println("SQL : " + SQL);
 			return rs = getPrepareStatement(SQL).executeQuery();
 		} catch (SQLException e) {
 			LOGGER.error("fail getting resultset", e);
 		    throw new SQLException("fail get resultset", e);
 		}
 	}
+	
+	protected int executeUpdate(String SQL, Map<Integer, Object> params) throws SQLException{
+		try {
+			System.out.println(SQL);
+			System.out.println(params);
+			PreparedStatement ps = getPrepareStatement(SQL);
+			for(Integer index : params.keySet()) {
+				ps.setObject(index, params.get(index));
+			}
+			int result = ps.executeUpdate();
+			return result;
+		} catch (SQLException e) {
+			LOGGER.error("fail getting resultset", e);
+		    throw new SQLException("fail get resultset", e);
+		}
+	}
+
 
 	private void closeConection() {
 		try {
@@ -102,7 +120,6 @@ public class Dao {
 	
 	protected String ReplaceQueryParams(String sql, Map<String, Object> replacementQueryParams) throws SQLException {
 		try {
-
 			if (replacementQueryParams != null && !replacementQueryParams.isEmpty()) {
 
 				for (Map.Entry<String, Object> entry : replacementQueryParams.entrySet()) {

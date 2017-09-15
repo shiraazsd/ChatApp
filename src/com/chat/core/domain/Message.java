@@ -25,12 +25,12 @@ public class Message extends Auditory implements Serializable {
 	/**
 	 * User who send messaje
 	 */
-	private User userSendMessage;
+	private User userFrom;
 
 	/**
 	 * User Who receive message
 	 */
-	private User receiveMessage;
+	private User UserTo;
 
 	/**
 	 * group who receive message
@@ -49,20 +49,20 @@ public class Message extends Auditory implements Serializable {
 		this.descriptionMessage = descriptionMessage;
 	}
 
-	public User getUserSendMessage() {
-		return userSendMessage;
+	public User getUserFrom() {
+		return userFrom;
 	}
 
-	public void setUserSendMessage(User userSendMessage) {
-		this.userSendMessage = userSendMessage;
+	public void setUserFrom(User userSendMessage) {
+		this.userFrom = userSendMessage;
 	}
 
-	public User getReceiveMessage() {
-		return receiveMessage;
+	public User getUserTo() {
+		return UserTo;
 	}
 
-	public void setReceiveMessage(User receiveMessage) {
-		this.receiveMessage = receiveMessage;
+	public void setUserTo(User receiveMessage) {
+		this.UserTo = receiveMessage;
 	}
 
 	public boolean isStatusMesage() {
@@ -79,5 +79,12 @@ public class Message extends Auditory implements Serializable {
 
 	public void setGroup(Group group) {
 		this.group = group;
+	}
+
+	@Override
+	public String toString() {
+		return "Message [descriptionMessage=" + descriptionMessage
+				+ ", statusMesage=" + statusMesage + ", userFrom=" + userFrom
+				+ ", UserTo=" + UserTo + "]";
 	}
 }

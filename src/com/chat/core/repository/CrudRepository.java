@@ -24,7 +24,7 @@ public interface CrudRepository <T>{
 	 * @return
 	 * @throws SQLException
 	 */
-	public T create(T domain) throws SQLException;
+	public void create(T domain) throws SQLException;
 	
 	/**
 	 * method for update object

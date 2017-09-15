@@ -15,6 +15,7 @@ import com.chat.core.domain.Group;
 import com.chat.core.domain.Message;
 import com.chat.core.domain.User;
 import com.chat.core.repository.MessageRepository;
+import com.chat.core.repository.UserRepository;
 import com.chat.core.util.Constants;
 
 public class MessageRepositoryImpl extends Dao implements MessageRepository {
@@ -22,6 +23,8 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 	private static Logger LOGGER = LoggerFactory.getLogger(UserRepositoryImpl.class);
 
 	private static MessageRepositoryImpl messageRepository;
+	
+	private UserRepository userRepository = UserRepositoryImpl.getInstance();
 
 	private String sql;
 
@@ -56,20 +59,20 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 			closeConections();
 		}
 	}
-
 	@Override
-	public Message create(Message domain) throws SQLException {
+	public void create(Message domain) throws SQLException {
 		try {
-			sql = "insert message into (id_team, id_user, username, status_message) values (:id_team, :id_user, :username, :status_message)";
+			sql = "insert into message(id_user, id_user_from, content, status_message) values (? , ?, ?, ?)";
 
-			Map<String, Object> parameters = new HashMap<>();
-			parameters.put(":id_team", domain.getGroup().getId());
-			parameters.put(":id_user", domain.getReceiveMessage().getId());
-			parameters.put(":username", domain.getUserSendMessage().getUsername());
-			parameters.put(":status_message", Constants.INACTIVE);
-			return getMessageByRS(getResulsetOf(ReplaceQueryParams(sql, parameters)), Boolean.FALSE);
+			Map<Integer, Object> parameters = new HashMap<>();
+//			parameters.put(":id_team", domain.getGroup().getId());
+			parameters.put(1, domain.getUserTo().getId());
+			parameters.put(2, domain.getUserFrom().getId());
+			parameters.put(3, domain.getDescriptionMessage());
+			parameters.put(4, Constants.INACTIVE);
+			executeUpdate(sql, parameters);
 		} catch (Exception e) {
-			LOGGER.error("fail findById user :", domain.getUserSendMessage().getId(), e);
+			LOGGER.error("fail findById user :", domain.getUserFrom().getId(), e);
 			throw new SQLException("fail findById user", e);
 		} finally {
 			closeConections();
@@ -83,12 +86,12 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 
 			Map<String, Object> parameters = new HashMap<>();
 			parameters.put(":id_team", domain.getGroup().getId());
-			parameters.put(":id_user", domain.getReceiveMessage().getId());
-			parameters.put(":username", domain.getUserSendMessage().getUsername());
+			parameters.put(":id_user", domain.getUserTo().getId());
+			parameters.put(":username", domain.getUserFrom().getUsername());
 			parameters.put(":status_message", Constants.INACTIVE);
 			getResulsetOf(ReplaceQueryParams(sql, parameters));
 		} catch (Exception e) {
-			LOGGER.error("fail update user :", domain.getUserSendMessage().getId(), e);
+			LOGGER.error("fail update user :", domain.getUserFrom().getId(), e);
 			throw new SQLException("fail update user", e);
 		} finally {
 			closeConections();
@@ -165,19 +168,54 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 		try {
 			Message message = new Message();
 			message.setId(rs.getLong("id_message"));
-			message.setReceiveMessage(new User());
-			message.getReceiveMessage().setId(rs.getLong("id_user"));
-			message.getReceiveMessage().setUsername("username");
-			message.setUserSendMessage(new User());
-			message.getUserSendMessage().setUsername(rs.getString("admin_user"));
+			message.setUserTo(new User());
+			message.getUserTo().setId(rs.getLong("to_id"));
+			message.getUserTo().setEmail(rs.getString("to_email"));			
+			message.setUserFrom(new User());
+			message.getUserFrom().setId(rs.getLong("from_id"));
+			message.getUserFrom().setEmail(rs.getString("from_email"));			
 			message.setGroup(new Group());
 			message.getGroup().setId(rs.getLong("id_team"));
 			message.setStatusMesage(Boolean.valueOf(rs.getString("status_message")));
+			message.setDescriptionMessage(rs.getString("content"));
 			return message;
 		} catch (Exception e) {
 			LOGGER.error("fail to the getFullUserByRs", e);
 			throw new SQLException("fail to the getFullUserByRs", e);
 		}
+	}
+	
+	@Override
+	public void create(String fromUser, String toUser, String messageText) throws SQLException {
+		User from = userRepository.getUserByEmail(fromUser);		
+		User to = userRepository.getUserByEmail(toUser);
+		Message message = new Message();
+		message.setUserFrom(from);
+		message.setUserTo(to);
+		message.setDescriptionMessage(messageText);
+		try {
+			create(message);
+		} catch (SQLException e) {
+			LOGGER.error("fail to the create", e);
+			throw new SQLException("fail to the create", e);			
+		}
+	}
+	
+	@Override
+	public List<Message> getLastFewMessages(String fromUser, String toUser, int limit) throws SQLException {		
+		try {
+			sql = "select id_message, id_team, fu.id_user as from_id, tu.id_user as to_id, fu.email as from_email, tu.email as to_email, content, status_message from message m " +
+				  " inner join user fu on m.id_user_from = fu.id_user inner join user tu on m.id_user = tu.id_user where (tu.email = ':user_to' and fu.email = ':user_from') or (fu.email = ':user_to' and tu.email = ':user_from') order by id_message desc limit :limit";			
+			Map<String, Object> parameters = new HashMap<>();
+			parameters.put(":user_to", toUser);
+			parameters.put(":user_from", fromUser);
+			parameters.put(":limit", limit);
+			List<Message> messages = getMessagesByRS(getResulsetOf(ReplaceQueryParams(sql, parameters)));
+			return messages;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SQLException("failed to retrieve last few messages");
+		}				
 	}
 
 }

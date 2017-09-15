@@ -39,9 +39,11 @@ var chatsocket = function() {
 		ws.onmessage = function(event) {
 			var message = JSON.parse(event.data);
 			var idSuffix = getElementIdSuffix(message.from);
-			createNewChatBox(message.from);
-			var msg_panel_id = getMsgPanelId(idSuffix);			
-			$("#"+msg_panel_id).append(messageReceive(message.content));
+			var status = createNewChatBox(message.from);
+			if(!status) {
+				var msg_panel_id = getMsgPanelId(idSuffix);			
+				$("#"+msg_panel_id).append(messageReceive(message.content));
+			}
 		};
 
 	};
