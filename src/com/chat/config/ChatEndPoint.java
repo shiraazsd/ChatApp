@@ -47,15 +47,15 @@ public class ChatEndPoint {
 		log.info(message.toString());
 		System.out.println("onMessage : " + message.toString());
 		message.setFrom(users.get(session.getId()));
-		sendMessageToOneUser(message);
 		persistMessage(message);
+		sendMessageToOneUser(message);
 	}
 	
 	private static void persistMessage(Message message) {
 		try {
 			messageRespoitory.create(message.getFrom(), message.getTo(), message.getContent());
 		} catch (SQLException e) {
-			System.out.print("Unable to retrieve message");
+			System.out.print("Unable to persist message");
 			e.printStackTrace();
 		}		
 	}

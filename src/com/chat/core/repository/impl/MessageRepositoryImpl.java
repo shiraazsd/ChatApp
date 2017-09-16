@@ -198,6 +198,8 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 		} catch (SQLException e) {
 			LOGGER.error("fail to the create", e);
 			throw new SQLException("fail to the create", e);			
+		} finally {
+			closeConections();
 		}
 	}
 	
@@ -215,7 +217,9 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new SQLException("failed to retrieve last few messages");
-		}				
+		} finally {
+			closeConections();
+		}
 	}
 
 }
