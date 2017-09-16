@@ -18,7 +18,7 @@ public class ChatEndPoint {
 
 	private final Logger log = Logger.getLogger(getClass().getName());
 
-	private MessageRepository messageRespoitory = MessageRepositoryImpl.getInstance();
+	private static MessageRepository messageRespoitory = MessageRepositoryImpl.getInstance();
 	
 	private Session session;
 	private String username;
@@ -51,7 +51,7 @@ public class ChatEndPoint {
 		persistMessage(message);
 	}
 	
-	private void persistMessage(Message message) {
+	private static void persistMessage(Message message) {
 		try {
 			messageRespoitory.create(message.getFrom(), message.getTo(), message.getContent());
 		} catch (SQLException e) {

@@ -8,6 +8,11 @@ var getElementIdSuffix = function(email) {
 	return suffix;
 };
 
+var getChatBoxLoaderId = function(idSuffix) {
+	var id = "chat_box_loader_"+idSuffix;
+	return id;
+}
+
 var getMsgPanelId = function(idSuffix) {
 	var id = "msg_panel_"+idSuffix;
 	return id;
@@ -61,7 +66,7 @@ var createNewChatBox = function(selectedUserEmail) {
 		closeFirstChatBox();		
 	}				
 	
-	var data = { chat_window_id : getChatWindowId(idSuffix), chat_user_email : selectedUserEmail, minim_id : getMinimId(idSuffix), msg_panel_id : getMsgPanelId(idSuffix), btn_input_id : getBtnInputId(idSuffix)};	
+	var data = { chat_window_id : getChatWindowId(idSuffix), chat_user_email : selectedUserEmail, minim_id : getMinimId(idSuffix), msg_panel_id : getMsgPanelId(idSuffix), btn_input_id : getBtnInputId(idSuffix), loader_id : getChatBoxLoaderId(idSuffix)};	
 	
 	var html = Mustache.render(template, data);		
 	
@@ -77,20 +82,18 @@ var populateChatHistory = function(toUser) {
 	var chatMessageHistoryApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/chatMessages?from=" + fromUser + "&to=" + toUser; 
 	$.getJSON(chatMessageHistoryApiUrl,
 			   function(data) {
-				 if(data.length == 0)
-					 return;
-				 var loggedInUser = getLoggedInUser();
-				 var toUser;
-				 if(data[0].from == loggedInUser)
-					 toUser = data[0].to;
-				 else
-					 toUser = data[0].from;	
+				 var toUser = data.to;
+				 var fromUser = data.from;
+				 messageList = data.messageList;
 				 var idSuffix = getElementIdSuffix(toUser);
-			   	 for(var i = 0; i < data.length; ++i) {
-			   		 if(data[i].from == loggedInUser) {
-			   			appendSendMessageToChat(idSuffix, data[i].content);
+			     hideLoader(getChatBoxLoaderId(idSuffix));
+				 if(messageList.length == 0)
+					 return;
+			   	 for(var i = 0; i < messageList.length; ++i) {
+			   		 if(messageList[i].from == fromUser) {
+			   			appendSendMessageToChat(idSuffix, messageList[i].content);
 			   		 } else{
-			   			appendReceiveMessageToChat(idSuffix, data[i].content);			   			 
+			   			appendReceiveMessageToChat(idSuffix, messageList[i].content);			   			 
 			   		 }
 			   	 }
 		 	   });		
@@ -134,3 +137,6 @@ var messageReceive = function(message) {
 	return imgMessage + buildMessage;
 };
 
+var hideLoader = function(loaderDivId, targetDivIdList) {
+	$('#'+loaderDivId).css('display', 'none');	
+}

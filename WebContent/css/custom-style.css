@@ -20,3 +20,18 @@
 		background-color: #bcc4c7;
 	}
 	.datagrid table tbody td:first-child { border-left: none; }.datagrid table tbody tr:last-child td { border-bottom: none; }
+	
+.loader {
+border: 6px solid #f3f3f3;
+    border-top: 6px solid lightgray;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+	margin-left: 45%;    
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
