@@ -3,6 +3,7 @@ package com.chat.config;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Logger;
 import javax.websocket.*;
@@ -105,6 +106,14 @@ public class ChatEndPoint {
 		return null;
 	}
 
+	public static Set<String> getOnlineUsers() {
+		Set<String> users = new TreeSet<String>();
+		for(ChatEndPoint enpoint : chatEndpoints) {
+			users.add(enpoint.username);
+		}
+		return users;
+	}
+	
 	@Override
 	public String toString() {
 		return "ChatEndPoint [session=" + session + ", username=" + username
