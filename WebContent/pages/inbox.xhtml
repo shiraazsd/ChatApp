@@ -1,0 +1,451 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+Author: Prasanna Bhale
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+    xmlns:f="http://java.sun.com/jsf/core">
+
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+	<title>JSF and WebSocket Demo using JEE7</title>
+	<link href="#{request.contextPath}/css/bootstrap.min.css"
+		rel="stylesheet" />
+	<link href="#{request.contextPath}/css/custom.css" rel="stylesheet"
+		type="text/css" />
+	<link href="#{request.contextPath}/testchat.css" rel="stylesheet"
+		type="text/css" />
+	<link href="#{request.contextPath}/fonts/css/font-awesome.min.css"
+		rel="stylesheet" type="text/css" />
+	<link href="#{request.contextPath}/css/custom-style.css"
+		rel="stylesheet" type="text/css" />
+
+
+</h:head>
+
+<h:body>
+	<div class="row">
+
+<div class="main_section">
+   <div class="container">
+      <div class="chat_container">			 
+         <div class="col-sm-10 message_section">
+		 <div class="row">
+		 <div class="chat_area">
+		 <ul class="list-unstyled">
+		 <li class="left clearfix">
+                     <span class="chat-img1 pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body1 clearfix">
+                        <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia.</p>
+						<div class="chat_time pull-right">09:40PM</div>
+                     </div>
+                  </li>
+				   <li class="left clearfix">
+                     <span class="chat-img1 pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body1 clearfix">
+                        <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia.</p>
+						<div class="chat_time pull-right">09:40PM</div>
+                     </div>
+                  </li>
+                     <li class="left clearfix">
+                     <span class="chat-img1 pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body1 clearfix">
+                        <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia.</p>
+    					<div class="chat_time pull-right">09:40PM</div>
+                     </div>
+                  </li>
+				  <li class="left clearfix admin_chat">
+                     <span class="chat-img1 pull-right">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body1 clearfix">
+                        <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia.</p>
+						<div class="chat_time pull-left">09:40PM</div>
+                     </div>
+                  </li>
+                  <li class="left clearfix admin_chat">
+                     <span class="chat-img1 pull-right">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body1 clearfix">
+                        <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia.</p>
+    					<div class="chat_time pull-left">09:40PM</div>
+                     </div>
+                  </li>
+				  
+				
+		 
+		 
+		 </ul>
+		 </div><!--chat_area-->
+          <div class="message_write">
+    	 <textarea class="form-control" placeholder="type a message"></textarea>
+		 <div class="clearfix"></div>
+		 <div class="chat_bottom">
+		 <a href="#" class="pull-right btn btn-success">Send</a></div>
+		 </div>
+		 </div>
+         </div> <!--message_section-->
+         <div class="col-sm-2 chat_sidebar">
+    	 <div class="row">
+            <div id="custom-search-input">
+               <div class="input-group col-md-12">
+                  <input type="text" class="  search-query form-control" placeholder="Conversation" />
+                  <button class="btn btn-danger" type="button">
+                  <span class=" glyphicon glyphicon-search"></span>
+                  </button>
+               </div>
+            </div>
+            <div class="dropdown all_conversation">
+               <button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               <i class="fa fa-weixin" aria-hidden="true"></i>
+               All Conversations
+               <span class="caret pull-right"></span>
+               </button>
+               <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                  <li><a href="#"> All Conversation </a>  <ul class="sub_menu_ list-unstyled">
+                  <li><a href="#"> All Conversation </a> </li>
+                  <li><a href="#">Another action</a></li>
+                  <li><a href="#">Something else here</a></li>
+                  <li><a href="#">Separated link</a></li>
+               </ul>
+			   </li>
+                  <li><a href="#">Another action</a></li>
+                  <li><a href="#">Something else here</a></li>
+                  <li><a href="#">Separated link</a></li>
+               </ul>
+            </div>
+            <div class="member_list">
+               <ul class="list-unstyled">
+                  <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                  <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right ">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                  <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+                          <li class="left clearfix">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">Shiraaz Sparrow</strong> <strong class="pull-right">
+                           09:45AM</strong>
+                        </div>
+                        <div class="contact_sec">
+                           <strong class="primary-font">(shiraaz) 123-456</strong> <span class="badge pull-right">3</span>
+                        </div>
+                     </div>
+                  </li>
+
+               </ul>
+            </div></div>
+         </div>
+         <!--chat_sidebar-->
+	         
+      </div>
+   </div>
+</div>
+
+</div>
+
+	<script src="#{request.contextPath}/js/jquery.min.js"></script>
+	<script src="#{request.contextPath}/testchat.js"></script>
+	<script
+		src="#{request.contextPath}/js/modules/chatsocket/chatsocket.js"></script>
+	<script type="text/javascript"
+		src="#{request.contextPath}/js/nicescroll/jquery.nicescroll.min.js"></script>
+	<script src="#{request.contextPath}/js/bootstrap.min.js"></script>
+	<script type="text/javascript"
+		src="#{request.contextPath}/js/custom.js"></script>
+	<script type="text/javascript"
+		src="#{request.contextPath}/js/chatplugin.js"></script>
+	<script type="text/javascript"
+		src="#{request.contextPath}/js/mustache.js"></script>
+	<script type="text/javascript" src="#{request.contextPath}/js/chatLogic.js">
+	</script>
+<script src="https://use.fontawesome.com/45e03a14ce.js"></script>
+	
+	<script type="text/template" id="chat-window-template">
+			<div class="row chat-window col-xs-5 col-md-3" id="{{chat_window_id}}">
+				<div class="col-xs-12 col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading top-bar">
+							<div class="col-md-8 col-xs-8">
+								<h3 class="panel-title">
+									<span class="glyphicon glyphicon-comment"></span> {{chat_user_email}}
+								</h3>
+							</div>
+							<div class="col-md-4 col-xs-4" style="text-align: right;">
+								<a href="#"><span id="{{minim_id}}"
+									class="glyphicon glyphicon-minus icon_minim"></span></a> <a href="#"><span
+									class="glyphicon glyphicon-remove icon_close"
+									data-id="{{chat_window_id}}"></span></a>
+							</div>
+						</div>
+						<div class="panel-body msg_container_base" id="{{msg_panel_id}}">
+						</div>
+						<div id="{{loader_id}}" class="loader">
+						</div>
+						<div class="panel-footer">
+							<div class="input-group">
+								<input id="{{btn_input_id}}" type="text"
+									class="form-control input-sm chat_input"
+									placeholder="Write your message here..." /> <span
+									class="input-group-btn">
+									<button class="btn btn-primary btn-sm btn-chat-send" id="btn-chat" data-id-email="{{chat_user_email}}" data-id="{{btn_input_id}}" data-id-msg-panel="{{msg_panel_id}}">Send</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+	</script>			
+
+</h:body>
+</html>

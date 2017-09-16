@@ -27,6 +27,8 @@ $(document).on('click', '#new_chat', function (e) {
 });
 $(document).on('click', '.icon_close', function (e) {
 	var chatWindow = $(this).attr("data-id");
+	var user = $("#"+chatWindow).find('.panel-title').text().trim();
+	removeFromOpenChatUsers(user);
     $("#"+chatWindow).remove();
 });
 

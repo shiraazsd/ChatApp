@@ -1,7 +1,10 @@
 $(document).ready(function() {
 	chatsocket.initEvent();
+	initializeSessionStorage();
+	createOpenChatUsersChatBox();	
 });
 
+var OPEN_CHAT_USERS = "openChatUsers";
 
 var getElementIdSuffix = function(email) {
 	var suffix = email.replace("@", '').replace('.', '');
@@ -74,6 +77,7 @@ var createNewChatBox = function(selectedUserEmail) {
 	reArrangeChatBox();
 	populateChatHistory(selectedUserEmail);
 	chatsocket.initAction();
+	addToOpenChatUsers(selectedUserEmail);	
 	return true;
 };	
 
@@ -139,4 +143,38 @@ var messageReceive = function(message) {
 
 var hideLoader = function(loaderDivId, targetDivIdList) {
 	$('#'+loaderDivId).css('display', 'none');	
-}
+};
+
+var initializeSessionStorage = function() {
+	if(sessionStorage.getItem(OPEN_CHAT_USERS) == null) {
+		sessionStorage.setItem(OPEN_CHAT_USERS, JSON.stringify([]));
+	}
+};
+
+var addToOpenChatUsers = function(user) {
+	var userList = JSON.parse(sessionStorage.getItem(OPEN_CHAT_USERS));
+	if(userList.indexOf(user) == -1) {
+		userList.push(user);
+		sessionStorage.setItem(OPEN_CHAT_USERS, JSON.stringify(userList));
+	}
+};
+
+var removeFromOpenChatUsers = function(user) {
+	var userList = JSON.parse(sessionStorage.getItem(OPEN_CHAT_USERS));
+	var index = userList.indexOf(user);
+	if (index > -1) {
+	    userList.splice(index, 1);
+	}
+	sessionStorage.setItem(OPEN_CHAT_USERS, JSON.stringify(userList));
+};
+
+var getOpenChatUsers = function(user) {
+	return JSON.parse(sessionStorage.getItem(OPEN_CHAT_USERS));	
+};
+
+var createOpenChatUsersChatBox = function() {
+	var userList = getOpenChatUsers();
+	for(var i = 0; i < userList.length; ++i) {
+		createNewChatBox(userList[i]);
+	}
+};
