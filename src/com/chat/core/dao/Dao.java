@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
@@ -59,6 +60,20 @@ public class Dao {
 		try {
 			System.out.println("SQL : " + SQL);
 			return rs = getPrepareStatement(SQL).executeQuery();
+		} catch (SQLException e) {
+			LOGGER.error("fail getting resultset", e);
+		    throw new SQLException("fail get resultset", e);
+		}
+	}
+
+	protected ResultSet getResulsetOf(String SQL, Map<Integer, String> params) throws SQLException{
+		try {
+			System.out.println("SQL : " + SQL);
+			PreparedStatement ps = getPrepareStatement(SQL);
+			for(Integer index : params.keySet()) {
+				ps.setObject(index, params.get(index));
+			}
+			return rs = ps.executeQuery();
 		} catch (SQLException e) {
 			LOGGER.error("fail getting resultset", e);
 		    throw new SQLException("fail get resultset", e);

@@ -19,6 +19,10 @@ public interface UserRepository extends CrudRepository<User>{
 	
 	public User getUserByEmailAndPassword(String email, String password) throws SQLException;
 	
-	public User getUserByEmail(String email) throws SQLException;;
+	public User getUserByEmail(String email) throws SQLException;
+
+	public List<User> getRecentUserList(String user) throws SQLException;
+
+	public List<User> getUserListByEmail(List<String> emailList) throws SQLException;;
 
 }

@@ -2,9 +2,9 @@ package com.chat.core.util;
 
 public class Constants {
 	
-	public static final String ACTIVE = "1";
+	public static final String READ = "1";
 	
-	public static final String INACTIVE = "0";
+	public static final String UNREAD = "0";
 
 	public static final String ONLINE = "1";
 
@@ -18,4 +18,6 @@ public class Constants {
 
 	public static final String RECENT_USERS = "3";
 
+	public static final String REFRESH_CONTACT = "refreshContact";
 }
+

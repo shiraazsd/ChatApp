@@ -3,6 +3,7 @@ package com.chat.dto;
 public class UserStatusDto {
 	private String user;
 	private String status;
+	private int notification;
 
 	public UserStatusDto(String user, String status) {
 		this.user = user;
@@ -21,4 +22,12 @@ public class UserStatusDto {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	public int getNotification() {
+		return notification;
+	}
+
+	public void setNotification(int notification) {
+		this.notification = notification;
+	}	
 }

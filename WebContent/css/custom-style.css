@@ -120,6 +120,9 @@ border: 6px solid #f3f3f3;
    .member_list .contact_sec {
    margin-top: 3px;
    }
+   .member_list .header_sec span {
+   vertical-align: -webkit-baseline-middle;
+   }
    .member_list li {
    padding: 6px;
    }
@@ -138,9 +141,11 @@ border: 6px solid #f3f3f3;
    border-bottom:none;
    }
    .member_list {
-   height: 530px;
+   height: 590px;
    overflow-x: hidden;
    overflow-y: auto;
+   border-left:1px solid lightgrey;   
+   border-bottom:1px solid lightgrey;   
    }
    .sub_menu_ {
   background: #e8e6e7 none repeat scroll 0 0;
@@ -234,3 +239,22 @@ border: 6px solid #f3f3f3;
   color: #fff;
   cursor:pointer;
 }
+.status_online_icon:before {
+    content: "\f111";
+    font-size: 8px;
+    padding-right: 5px;
+    color : greenyellow;
+}	
+.status_offline_icon:before {
+    content: "\f111";
+    font-size: 8px;
+    padding-right: 5px;
+	color: grey;    
+}	
+.chat_box_heading_text {
+	vertical-align: middle;	
+}
+.notification, .panel-default>.panel-heading .notification {
+	background-color: #ff5757;	
+}
+

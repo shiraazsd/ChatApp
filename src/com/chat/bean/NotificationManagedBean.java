@@ -38,7 +38,7 @@ public class NotificationManagedBean implements Serializable{
 	  String message;
 	  
 	  public void sendNotification() throws SQLException  {
-		 List<User> users = userRespository.getUserByStatus(Constants.ACTIVE);
+		 List<User> users = userRespository.getUserByStatus(Constants.READ);
 		 
 		 User human = userRespository.findById(1l);
 		 

@@ -34,293 +34,26 @@ Author: Prasanna Bhale
 		<span class="col-md-10">
 			Logged In : <span id="loggedInUser"><h:outputText value="#{request.remoteUser}"/></span>		
 			<h:inputHidden id="user" value="#{request.remoteUser}"></h:inputHidden>
+			<span id="sound"></span>
 		</span>
 	
 	
          <div class="col-sm-2 chat_sidebar">
     	 <div class="row">
-            <div id="custom-search-input">
-               <div class="input-group col-md-12">
-                  <input type="text" class="  search-query form-control" placeholder="Conversation" />
-                  <button class="btn btn-danger" type="button">
-                  <span class=" glyphicon glyphicon-search"></span>
-                  </button>
-               </div>
-            </div>
             <div class="dropdown all_conversation">
                <button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                <i class="fa fa-weixin" aria-hidden="true"></i>
-               All Conversations
+               	Filter Users
                <span class="caret pull-right"></span>
                </button>
-               <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                  <li><a href="#"> All Conversation </a>  <ul class="sub_menu_ list-unstyled">
-                  <li><a href="#"> All Conversation </a> </li>
-                  <li><a href="#">Another action</a></li>
-                  <li><a href="#">Something else here</a></li>
-                  <li><a href="#">Separated link</a></li>
-               </ul>
-			   </li>
-                  <li><a href="#">Another action</a></li>
-                  <li><a href="#">Something else here</a></li>
-                  <li><a href="#">Separated link</a></li>
+               <ul id="userListCategory" class="dropdown-menu" aria-labelledby="dropdownMenu2" data-current-selection="1">
+                  <li data-id="1"><a href="#">All Users </a></li>
+                  <li data-id="2"><a href="#">Online Users</a></li>
+                  <li data-id="3"><a href="#">Recent Users</a></li>
                </ul>
             </div>
             <div class="member_list">
-               <ul class="list-unstyled">
-                  <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                  <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right ">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                  <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Jack Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(123) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
-                          <li class="left clearfix">
-                     <span class="chat-img pull-left">
-                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
-                     </span>
-                     <div class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">Shiraaz Sparrow</strong> <strong class="pull-right">
-                           09:45AM</strong>
-                        </div>
-                        <div class="contact_sec">
-                           <strong class="primary-font">(shiraaz) 123-456</strong> <span class="badge pull-right">3</span>
-                        </div>
-                     </div>
-                  </li>
+               <ul id="contactListContainer" class="list-unstyled">
 
                </ul>
             </div></div>
@@ -354,13 +87,15 @@ Author: Prasanna Bhale
 				<div class="col-xs-12 col-md-12">
 					<div class="panel panel-default">
 						<div class="panel-heading top-bar">
-							<div class="col-md-8 col-xs-8">
+							<div class="col-md-6 col-xs-6">
 								<h3 class="panel-title">
-									<span class="glyphicon glyphicon-comment"></span> {{chat_user_email}}
+									<span id="{{chat_user_status_id}}" class="fa"></span> 								
+									<span class="chat_box_heading_text">{{chat_user_email}}</span>
 								</h3>
 							</div>
-							<div class="col-md-4 col-xs-4" style="text-align: right;">
-								<a href="#"><span id="{{minim_id}}"
+							<div class="col-md-6 col-xs-6" style="text-align: right;">
+									<span id="{{chat_user_notification_id}}" class="badge notification"></span>
+									<a href="#"><span id="{{minim_id}}"
 									class="glyphicon glyphicon-minus icon_minim"></span></a> <a href="#"><span
 									class="glyphicon glyphicon-remove icon_close"
 									data-id="{{chat_window_id}}"></span></a>
@@ -384,6 +119,22 @@ Author: Prasanna Bhale
 				</div>
 			</div>
 	</script>			
+
+	<script type="text/template" id="user-contact-entry-template">
+                  <li id="{{user_list_id}}" data-id-email="{{user_list_email}}" class="clearfix user_list_entry">
+                     <span class="chat-img pull-left">
+                     <img src="{{user_pic}}" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">                        	
+							<span id="{{list_user_status_id}}" class="fa"></span> 
+                           <span><strong class="primary-font">{{user_list_email}}</strong></span>
+							<span id="{{list_user_notification_id}}" class="badge notification pull-right"></span>
+                        </div>
+                     </div>
+                  </li>
+	</script>			
+
 
 </h:body>
 </html>

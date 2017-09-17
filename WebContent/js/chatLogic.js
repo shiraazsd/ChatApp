@@ -1,7 +1,9 @@
 $(document).ready(function() {
 	chatsocket.initEvent();
+	chatsocket.initAction();
 	initializeSessionStorage();
-	createOpenChatUsersChatBox();	
+	createOpenChatUsersChatBox();
+	loadUserContactList();	
 });
 
 var OPEN_CHAT_USERS = "openChatUsers";
@@ -34,6 +36,31 @@ var getChatWindowId = function(idSuffix) {
 var getMinimId = function(idSuffix) {
 	var id = "minim_"+idSuffix;
 	return id;
+}
+
+var getUserListEntryId = function(idSuffix) {
+	var id= "user_list_entry_"+idSuffix;
+	return id;
+}
+
+var getListUserStatusId = function(idSuffix) {
+	var id = "list_user_status_id_"+idSuffix;
+	return id;
+}
+
+var getListUserNotificationId = function(idSuffix) {
+	var id = "list_user_notification_id_"+idSuffix;
+	return id;	
+}
+
+var getChatUserStatusId = function(idSuffix) {
+	var id = "chat_user_status_id_"+idSuffix;
+	return id;
+}
+
+var getChatUserNotificationId = function(idSuffix) {
+	var id = "chat_user_notification_id_"+idSuffix;
+	return id;	
 }
 
 $('#usersDataTable td').click( function() {
@@ -69,15 +96,17 @@ var createNewChatBox = function(selectedUserEmail) {
 		closeFirstChatBox();		
 	}				
 	
-	var data = { chat_window_id : getChatWindowId(idSuffix), chat_user_email : selectedUserEmail, minim_id : getMinimId(idSuffix), msg_panel_id : getMsgPanelId(idSuffix), btn_input_id : getBtnInputId(idSuffix), loader_id : getChatBoxLoaderId(idSuffix)};	
+	var data = { chat_window_id : getChatWindowId(idSuffix), chat_user_email : selectedUserEmail, minim_id : getMinimId(idSuffix), msg_panel_id : getMsgPanelId(idSuffix), btn_input_id : getBtnInputId(idSuffix), loader_id : getChatBoxLoaderId(idSuffix), chat_user_status_id : getChatUserStatusId(idSuffix), chat_user_notification_id : getChatUserNotificationId(idSuffix)};	
 	
 	var html = Mustache.render(template, data);		
 	
 	$('#chatBoxContainer').append(html);
 	reArrangeChatBox();
+	setUserStatusIcon(getChatUserStatusId(idSuffix), getCurrentUserListStatus(selectedUserEmail));
+	displayUserNotificationCount(getChatUserNotificationId(idSuffix), getCurrentUserListNotification(selectedUserEmail));	
 	populateChatHistory(selectedUserEmail);
 	chatsocket.initAction();
-	addToOpenChatUsers(selectedUserEmail);	
+	addToOpenChatUsers(selectedUserEmail);
 	return true;
 };	
 
@@ -100,6 +129,7 @@ var populateChatHistory = function(toUser) {
 			   			appendReceiveMessageToChat(idSuffix, messageList[i].content);			   			 
 			   		 }
 			   	 }
+			 	scrollToBottom(toUser);
 		 	   });		
 };
 
@@ -178,3 +208,107 @@ var createOpenChatUsersChatBox = function() {
 		createNewChatBox(userList[i]);
 	}
 };
+
+var loadUserContactList = function() {
+	var loggedInUser = getLoggedInUser();
+	var type = $('#userListCategory').attr("data-current-selection");
+	var userListApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getUsersList?loggedInUser=" + loggedInUser + "&type=" + type; 
+	$.getJSON(userListApiUrl,
+			   function(data) {
+					populateUserContactList(data);
+		 	   });			
+};
+
+var populateUserContactList = function(data) {
+	$('#contactListContainer').empty();
+	var template = $("#user-contact-entry-template").html();
+	var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";
+	for(var i = 0; i < data.length; ++i) {
+		var idSuffix = getElementIdSuffix(data[i].user);
+		var params = { user_list_id : getUserListEntryId(idSuffix), user_list_email : data[i].user, user_pic : img, list_user_status_id : getListUserStatusId(idSuffix), list_user_notification_id : getListUserNotificationId(idSuffix)};
+		var html = Mustache.render(template, params);						
+		$('#contactListContainer').append(html);
+		setUserStatusIcon(getListUserStatusId(idSuffix), data[i].status);		
+		setUserStatusIcon(getChatUserStatusId(idSuffix), data[i].status);		
+		setUserNotificationCount(data[i].user, data[i].notification);	
+	}
+	chatsocket.initAction();	
+};
+
+var getUserAvailableStatusIcon = function(status) {
+	if(status == '1')
+		return 'status_online_icon';
+	else 
+		return 'status_offline_icon';
+};
+
+var setUserStatusIcon = function(id, status) {
+	var el = $("#"+id);
+	if(status == '1') {
+		el.removeClass('status_offline_icon');
+		el.addClass('status_online_icon')
+	} else {
+		el.removeClass('status_online_icon');
+		el.addClass('status_offline_icon')		
+	}
+};
+
+var getCurrentUserListStatus = function(user) {
+	var listId = getListUserStatusId(getElementIdSuffix(user));
+	if($('#'+listId).hasClass('status_online_icon') == true) {
+		return '1';
+	} else {
+		return '0';
+	}	
+};
+
+var getCurrentUserListNotification = function(user) {
+	var listId = getListUserNotificationId(getElementIdSuffix(user));
+	return $('#'+listId).text();
+};
+
+var setUserNotificationCount = function(user, count) {
+	var idSuffix = getElementIdSuffix(user);
+	idList = getListUserNotificationId(idSuffix);
+	idChat = getChatUserNotificationId(idSuffix);
+	displayUserNotificationCount(idList, count);
+	displayUserNotificationCount(idChat, count);
+}
+
+var displayUserNotificationCount = function(id, count) {
+	$('#'+id).text(count);
+	if(count == 0)
+		$('#'+id).css('display', 'none');
+	else
+		$('#'+id).css('display', '');		
+};
+
+var markMessagesAsRead = function(fromUser) {
+	var toUser = getLoggedInUser();
+	var markReadMessagesApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/markMessagesAsRead?to=" + toUser + "&from=" + fromUser; 
+	$.getJSON(markReadMessagesApiUrl,
+			   function(data) {
+					loadUserContactList();
+		 	   });				
+};
+
+var updateNotification = function(fromUser) {
+	var id = getChatBoxLoaderId(getElementIdSuffix(fromUser));
+	if($('#'+id).is(':focus')) {
+    	markMessagesAsRead(to);
+	} else {
+		loadUserContactList();
+		playNotification();		
+	}
+};
+
+var playNotification = function() {
+	var filename = 'notification';
+	$("#sound").html('<audio autoplay="autoplay"><source src="' + filename + '.mp3" type="audio/mpeg" /><source src="' + filename + '.ogg" type="audio/ogg" /><embed hidden="true" autostart="true" loop="false" src="' + filename +'.mp3" /></audio>');
+};
+
+var scrollToBottom = function(to) {
+	var panel = $('#'+getMsgPanelId(getElementIdSuffix(to)));
+	panel.scrollTop(panel.prop("scrollHeight"));	
+};
+	

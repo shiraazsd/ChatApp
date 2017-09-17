@@ -70,7 +70,33 @@ public class UserRepositoryImpl extends Dao implements UserRepository {
 			closeConections();
 		}
 	}
-	
+
+	@Override
+	public List<User> getUserListByEmail(List<String> emailList) throws SQLException {
+		if(emailList.size() < 1)
+			return new ArrayList<User>();
+		StringBuilder builder = new StringBuilder();
+		try {
+			sql = "select u.id_user, u.id_roler, u.email, u.password, u.status from user u where u.email in (%s)";
+			
+			for( int i = 0 ; i < emailList.size(); i++ ) {
+			    builder.append("?,");
+			}			
+			String inClause = builder.deleteCharAt( builder.length() -1 ).toString();
+			sql = String.format(sql, inClause);
+			Map<Integer, String> parameters = new HashMap<>();
+			for(int i = 1; i <= emailList.size(); ++i) {
+				parameters.put(i, emailList.get(i-1));
+			}
+			return getUsersByRS(getResulsetOf(sql, parameters));
+		} catch (Exception e) {
+			LOGGER.error("fail getUserByEmail user :", emailList, e);
+			throw new SQLException("fail getUserByEmail user", e);
+		} finally {
+			closeConections();
+		}
+	}
+
 	@Override
 	public User findById(Long id) throws SQLException {
 		try {
@@ -95,7 +121,7 @@ public class UserRepositoryImpl extends Dao implements UserRepository {
 			parameters.put(":email", "'" + domain.getEmail() + "'");
 			parameters.put(":password", "'" + domain.getPassword() + "'");
 			parameters.put(":id_roler", domain.getRoler().getIdRoler());
-			parameters.put(":status", Constants.ACTIVE);
+			parameters.put(":status", Constants.READ);
 			getUserByRS(getResulsetOf(ReplaceQueryParams(sql, parameters)));
 		} catch (Exception e) {
 			LOGGER.error("fail create user :", domain.getEmail(), e);
@@ -114,7 +140,7 @@ public class UserRepositoryImpl extends Dao implements UserRepository {
 			parameters.put(":email", "'" + domain.getEmail() + "'");
 			parameters.put(":password", "'" + domain.getPassword() + "'");
 			parameters.put(":id_roler", domain.getRoler().getIdRoler());
-			parameters.put(":status", Constants.ACTIVE);
+			parameters.put(":status", Constants.READ);
 			getResulsetOf(ReplaceQueryParams(sql, parameters));
 		} catch (Exception e) {
 			LOGGER.error("fail update user :", domain.getEmail(), e);
@@ -208,4 +234,22 @@ public class UserRepositoryImpl extends Dao implements UserRepository {
 			throw new SQLException("fail to the getFullUserByRs", e);
 		}
 	}
+	
+	@Override
+	public List<User> getRecentUserList(String user) throws SQLException {
+		try {
+			sql = "select f.email, f.id_user, f.password, f.id_roler from message m inner join user t on m.id_user = t.id_user inner join user f on m.id_user_from = f.id_user where t.email = ':user' group by f.email"; 						
+			Map<String, Object> parameters = new HashMap<>();
+			parameters.put(":user", user);
+			return getUsersByRS(getResulsetOf(ReplaceQueryParams(sql, parameters)));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SQLException("Cannot retrieve unread message count");
+		}  finally {
+			closeConections();
+		}
+
+	}
+	
+	
 }

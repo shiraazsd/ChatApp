@@ -13,6 +13,7 @@ import javax.websocket.server.ServerEndpoint;
 import com.chat.core.dao.ex.SQLException;
 import com.chat.core.repository.MessageRepository;
 import com.chat.core.repository.impl.MessageRepositoryImpl;
+import com.chat.core.util.Constants;
 
 @ServerEndpoint(value = "/chat/{username}", decoders = MessageDecoder.class, encoders = MessageEncoder.class)
 public class ChatEndPoint {
@@ -33,12 +34,7 @@ public class ChatEndPoint {
 		this.username = username;
 		chatEndpoints.add(this);
 		users.put(session.getId(), username);
-
-		Message message = new Message();
-		message.setFrom(username);
-		message.setContent("connected!");
-		broadcast(message);
-
+		broadcastRefreshContact();
 		System.out.println("Active endpoints count : " +  chatEndpoints.size());
 		System.out.println("Active endpoints : " +  chatEndpoints);		
 	}
@@ -66,23 +62,27 @@ public class ChatEndPoint {
 		log.info(session.getId() + " disconnected!");
 
 		chatEndpoints.remove(this);
-		Message message = new Message();
-		message.setFrom(users.get(session.getId()));
-		message.setContent("disconnected!");
-		broadcast(message);
+		broadcastRefreshContact();		
 	}
 
 	@OnError
-	public void onError(Session session, Throwable throwable) {
+	public void onError(Session session, Throwable throwable) throws IOException, EncodeException {
+		broadcastRefreshContact();
 		log.warning(throwable.toString());
 	}
 
+	private static void broadcastRefreshContact() throws IOException, EncodeException {
+		Message message = new Message();
+		message.setContent(Constants.REFRESH_CONTACT);
+		broadcast(message);		
+	}
+	
 	private static void broadcast(Message message) throws IOException, EncodeException {
-//		for (ChatEndPoint endpoint : chatEndpoints) {
-//			synchronized (endpoint) {
-//				endpoint.session.getBasicRemote().sendObject(message);
-//			}
-//		}
+		for (ChatEndPoint endpoint : chatEndpoints) {
+			synchronized (endpoint) {
+				endpoint.session.getBasicRemote().sendObject(message);
+			}
+		}
 	}
 
 	private static void sendMessageToOneUser(Message message) throws IOException, EncodeException {

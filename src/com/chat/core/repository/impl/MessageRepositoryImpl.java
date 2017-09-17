@@ -69,7 +69,7 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 			parameters.put(1, domain.getUserTo().getId());
 			parameters.put(2, domain.getUserFrom().getId());
 			parameters.put(3, domain.getDescriptionMessage());
-			parameters.put(4, Constants.INACTIVE);
+			parameters.put(4, Constants.UNREAD);
 			executeUpdate(sql, parameters);
 		} catch (Exception e) {
 			LOGGER.error("fail findById user :", domain.getUserFrom().getId(), e);
@@ -88,7 +88,7 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 			parameters.put(":id_team", domain.getGroup().getId());
 			parameters.put(":id_user", domain.getUserTo().getId());
 			parameters.put(":username", domain.getUserFrom().getUsername());
-			parameters.put(":status_message", Constants.INACTIVE);
+			parameters.put(":status_message", Constants.UNREAD);
 			getResulsetOf(ReplaceQueryParams(sql, parameters));
 		} catch (Exception e) {
 			LOGGER.error("fail update user :", domain.getUserFrom().getId(), e);
@@ -138,6 +138,20 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 			LOGGER.error("fail to the getMessagesByRS", e);
 			throw new SQLException("fail to the getMessagesByRS", e);
 		}
+	}
+	
+	private Map<String, Integer> getCountByRS(ResultSet rs) throws SQLException {
+		Map<String, Integer> userCountMap = new HashMap<String, Integer>();
+		try {
+			while(rs.next()) {
+				userCountMap.put(rs.getString("userFrom"), rs.getInt("count"));
+			}
+			System.out.print("User Count Map : " + userCountMap);
+			return userCountMap;
+		} catch (Exception e) {
+			throw new SQLException("Cannot retrieve count");
+		}
+		
 	}
 
 	private Message getMessageByRS(ResultSet rs, Boolean isList) throws SQLException {
@@ -222,4 +236,45 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 		}
 	}
 
+	@Override
+	public Map<String, Integer> getUnreadMessageCount(String user) throws SQLException {
+		try {
+			sql = "select f.email as userFrom, count(*) as count from message m inner join user t on m.id_user = t.id_user inner join user f on m.id_user_from = f.id_user where t.email = ':user' and status_message = :message_status group by f.email"; 						
+			Map<String, Object> parameters = new HashMap<>();
+			parameters.put(":user", user);
+			parameters.put(":message_status", Constants.UNREAD);			
+			return getCountByRS(getResulsetOf(ReplaceQueryParams(sql, parameters)));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SQLException("Cannot retrieve unread message count");
+		}  finally {
+			closeConections();
+		}
+
+	}
+
+	@Override
+	public int markAllMessagesAsRead(String userTo, String userFrom) throws SQLException {
+		try {
+			sql = "update message m inner join user t on m.id_user = t.id_user inner join user f on m.id_user_from = f.id_user set m.status_message = ? where m.status_message = ? and t.email = ? and f.email = ?";
+			Map<Integer, Object> parameters = new HashMap<>();
+			parameters.put(1, Constants.READ);
+			parameters.put(2, Constants.UNREAD);		
+			parameters.put(3, userTo);		
+			parameters.put(4, userFrom);		
+			int count = executeUpdate(sql, parameters);
+			return count;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SQLException("Cannot retrieve unread message count");
+		}  finally {
+			closeConections();
+		}
+	}
+	
+	@Override
+	public int updateMessageStatusToRead(String fromUser, String toUser) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
