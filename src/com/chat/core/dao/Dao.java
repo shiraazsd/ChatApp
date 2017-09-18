@@ -66,7 +66,7 @@ public class Dao {
 		}
 	}
 
-	protected ResultSet getResulsetOf(String SQL, Map<Integer, String> params) throws SQLException{
+	protected ResultSet getResulsetOf(String SQL, Map<Integer, Object> params) throws SQLException{
 		try {
 			System.out.println("SQL : " + SQL);
 			PreparedStatement ps = getPrepareStatement(SQL);
@@ -82,8 +82,8 @@ public class Dao {
 	
 	protected int executeUpdate(String SQL, Map<Integer, Object> params) throws SQLException{
 		try {
-			System.out.println(SQL);
-			System.out.println(params);
+			System.out.println("executeUpdate : " + SQL);
+			System.out.println("executeUpdate : " + params);
 			PreparedStatement ps = getPrepareStatement(SQL);
 			for(Integer index : params.keySet()) {
 				ps.setObject(index, params.get(index));

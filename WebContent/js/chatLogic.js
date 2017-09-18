@@ -8,9 +8,11 @@ $(document).ready(function() {
 
 var OPEN_CHAT_USERS = "openChatUsers";
 
-var getElementIdSuffix = function(email) {
-	var suffix = email.replace("@", '').replace('.', '');
-	return suffix;
+var getElementIdSuffix = function(value) {
+	if(typeof value == 'string') {
+	  value = value.replace("@", '').replace('.', '');
+	}
+	return value;
 };
 
 var getChatBoxLoaderId = function(idSuffix) {
@@ -312,3 +314,73 @@ var scrollToBottom = function(to) {
 	panel.scrollTop(panel.prop("scrollHeight"));	
 };
 	
+var createNewGroupChat = function() {
+	var loggedInUser = getLoggedInUser();
+	var createNewGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/createNewGroupChat?loggedInUser=" + loggedInUser; 
+	$.getJSON(createNewGroupChatApiUrl,
+			   function(data) {
+					createNewGroupChatBox(data.id, data.name, 'test1');	
+	});	
+};
+
+var updateGroupChat = function(chatId, chatNameNew) {
+	var createNewGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/updateGroupChat?chatId=" + chatId + "&chatNameNew=" + chatNameNew; 
+	$.getJSON(createNewGroupChatApiUrl,
+			   function(data) {
+	});	
+};
+
+
+var createNewGroupChatBox = function(chatId, chatName, recipient) {
+	var template = $("#group-chat-window-template").html();
+	var idSuffix = getElementIdSuffix(chatId);
+	var maxChat = 4;
+	var chatBoxCount = $("#chatBoxContainer").children().length;
+	
+	if ($('#chatBoxContainer').find('#'+getChatWindowId(idSuffix)).length) {
+		return false;
+	}	
+	if(chatBoxCount >= maxChat) {
+		closeFirstChatBox();		
+	}				
+	
+	var data = { chat_window_id : getChatWindowId(idSuffix), chat_user_email : recipient, name : chatName, minim_id : getMinimId(idSuffix), msg_panel_id : getMsgPanelId(idSuffix), btn_input_id : getBtnInputId(idSuffix), loader_id : getChatBoxLoaderId(idSuffix), chat_user_notification_id : getChatUserNotificationId(idSuffix), chat_id : chatId};	
+	
+	var html = Mustache.render(template, data);		
+	
+	$('#chatBoxContainer').append(html);
+	reArrangeChatBox();
+//	displayUserNotificationCount(getChatUserNotificationId(idSuffix), getCurrentUserListNotification(selectedUserEmail));	
+//	populateChatHistory(selectedUserEmail);
+	chatsocket.initAction();
+//	addToOpenChatUsers(selectedUserEmail);
+	return true;
+};	
+
+var populateSelectionList = function(id, data) {
+	$('#'+id).empty();
+	var template = $("#group-user-contact-entry-template").html();
+	var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";
+	for(var i = 0; i < data.length; ++i) {
+		var idSuffix = getElementIdSuffix(data[i].user);
+		var params = { user_list_email : data[i].user, user_pic : img};
+		var html = Mustache.render(template, params);						
+		$('#'+id).append(html);
+	}
+	chatsocket.initAction();		
+}
+
+var updateUserSelectionModal = function(chatId) {
+	var loggedInUser = getLoggedInUser();
+	var getGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getGroupChat?chatId=" + chatId; 
+	$.getJSON(getGroupChatApiUrl,
+			   function(data) {
+					populateSelectionList('modalGroupUserList', data.members);
+	});		
+	var getAvailableUserApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getAvailableUsers?chatId=" + chatId; 					
+	$.getJSON(getAvailableUserApiUrl,
+			   function(data) {
+		populateSelectionList('modalAvailableUserList', data);						
+	});
+}
+

@@ -150,8 +150,9 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 			return userCountMap;
 		} catch (Exception e) {
 			throw new SQLException("Cannot retrieve count");
-		}
-		
+		}  finally {
+			closeConections();
+		}		
 	}
 
 	private Message getMessageByRS(ResultSet rs, Boolean isList) throws SQLException {

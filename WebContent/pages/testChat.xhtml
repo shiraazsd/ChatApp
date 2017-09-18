@@ -56,7 +56,15 @@ Author: Prasanna Bhale
                <ul id="contactListContainer" class="list-unstyled">
 
                </ul>
-            </div></div>
+            </div>
+            <div class="all_conversation">
+               <button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               <i class="fa fa-inbox" aria-hidden="true"></i>
+               	Goto Inbox
+				<i id="newGroupChat" class="fa fa-plus fa-1 pull-right" aria-hidden="true" title="Create group chat"></i>
+               </button>
+            </div>            
+            </div>
          </div>
          <!--chat_sidebar-->
 	</div>
@@ -120,6 +128,44 @@ Author: Prasanna Bhale
 			</div>
 	</script>			
 
+	<script type="text/template" id="group-chat-window-template">
+			<div class="row chat-window col-xs-5 col-md-3" id="{{chat_window_id}}" data-chat-id="{{chat_id}}">
+				<div class="col-xs-12 col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading top-bar">
+							<div class="col-md-6 col-xs-6">
+								<h3 class="panel-title panel-title-groupchat">
+									<span class="chat_box_heading_text">{{name}}</span>
+								</h3>
+							</div>
+							<div class="col-md-6 col-xs-6" style="text-align: right;">
+									<span id="{{chat_user_notification_id}}" class="badge notification"></span>
+									<i class="fa fa-user-plus selectGroupChatUser" aria-hidden="true" style="cursor:pointer;"></i>
+									<a href="#"><span id="{{minim_id}}"
+									class="glyphicon glyphicon-minus icon_minim"></span></a> <a href="#"><span
+									class="glyphicon glyphicon-remove icon_close"
+									data-id="{{chat_window_id}}"></span></a>
+							</div>
+						</div>
+						<div class="panel-body msg_container_base" id="{{msg_panel_id}}">
+						</div>
+						<div id="{{loader_id}}" class="loader">
+						</div>
+						<div class="panel-footer">
+							<div class="input-group">
+								<input id="{{btn_input_id}}" type="text"
+									class="form-control input-sm chat_input"
+									placeholder="Write your message here..." /> <span
+									class="input-group-btn">
+									<button class="btn btn-primary btn-sm btn-chat-send" id="btn-chat" data-id-email="{{chat_user_email}}" data-id="{{btn_input_id}}" data-id-msg-panel="{{msg_panel_id}}">Send</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+	</script>			
+
 	<script type="text/template" id="user-contact-entry-template">
                   <li id="{{user_list_id}}" data-id-email="{{user_list_email}}" class="clearfix user_list_entry">
                      <span class="chat-img pull-left">
@@ -134,7 +180,64 @@ Author: Prasanna Bhale
                      </div>
                   </li>
 	</script>			
+	<script type="text/template" id="group-user-contact-entry-template">
+				<li data-id-email="{{user_list_email}}" class="clearfix user_list_entry">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">                        	
+                           <span><strong class="primary-font">{{user_list_email}}</strong></span>
+                        </div>
+                     </div>
+                  </li>
+	</script>			
 
-
+<!--Group Chat User Selection Modal -->
+<div class="modal fade" id="groupChatUserSelection" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-ku" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="groupChatUserSelectionTitle">Select Users</h4>
+      </div>
+      <div class="modal-body">
+		<div class="row">
+            <div class="member_list col-md-6">
+            	All Users
+               <ul class="list-unstyled" id="modalAvailableUserList">
+				<li id="{{user_list_id}}" data-id-email="{{user_list_email}}" class="clearfix user_list_entry">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">                        	
+                           <span><strong class="primary-font">{{user_list_email}}</strong></span>
+                        </div>
+                     </div>
+                  </li>
+               </ul>
+            </div>
+                  
+            <div class="member_list col-md-6">
+            	Group Chat Users
+               <ul class="list-unstyled" id="modalGroupUserList">
+				<li id="{{user_list_id}}" data-id-email="{{user_list_email}}" class="clearfix user_list_entry">
+                     <span class="chat-img pull-left">
+                     <img src="http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">                        	
+                           <span><strong class="primary-font">{{user_list_email}}</strong></span>
+                        </div>
+                     </div>
+                  </li>
+               </ul>
+            </div>
+      	</div>
+      </div>
+    </div>
+  </div>
+</div>
 </h:body>
 </html>

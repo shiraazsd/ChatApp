@@ -47,7 +47,8 @@ var chatsocket = function() {
 				if(!status) {
 					var msg_panel_id = getMsgPanelId(idSuffix);			
 					$("#"+msg_panel_id).append(messageReceive(message.content));
-				}				
+				}
+		    	scrollToBottom(message.from);
 				updateNotification(message.from);
 			}
 		};
@@ -82,7 +83,15 @@ var chatsocket = function() {
 		$('.chat_input').unbind('focus');
 		$('#userListCategory').find('li').unbind('click');
 		$('.user_list_entry').unbind('click');		
+		$('.chat_input').unbind('focus');
+		$('#newGroupChat').unbind('click');
+		$('.panel-title-groupchat').find('.chat_box_heading_text').unbind('click');				
+		$('.panel-title-groupchat').find('.chat_box_heading_text').unbind('blur');				
+		$('.chat_box_heading_text').unbind('keypress');		
+		$('.selectGroupChatUser').unbind('click');
+		$('#groupChatUserSelection').unbind('shown.bs.modal');
 
+		
 		$('.btn-chat-send').click(function() {
 			console.log();
 			sendMessage($(this));
@@ -112,8 +121,39 @@ var chatsocket = function() {
 	    		markMessagesAsRead(to);
 	    	}
 		});	
+		$('#newGroupChat').click(function() {
+			createNewGroupChat();
+		});				
 
+		$('.panel-title-groupchat').find('.chat_box_heading_text').click(function() {
+	        $(this).attr('contentEditable', true);
+	        $(this).removeClass('chat_box_heading_text');
+	        $(this).addClass('chat_box_heading_text_input');
+	        $(this).focus();
+		}).blur(
+	        function() {
+	            $(this).attr('contentEditable', false);
+		        $(this).removeClass('chat_box_heading_text_input');
+		        $(this).addClass('chat_box_heading_text');
+		        var chatId = $(this).closest('.chat-window').attr('data-chat-id');
+	            updateGroupChat(chatId, $(this).text());
+
+	        });		
+		$('.chat_box_heading_text').keypress(function(e) {
+		    if(e.which == 13) {
+		    	$(this).blur();
+		    }
+		});	
 		
+		$('.selectGroupChatUser').click(function (e) {
+			var chatId = $(this).closest('.chat-window').attr('data-chat-id');
+			$('#groupChatUserSelection').attr('data-chat-id', chatId);
+			$('#groupChatUserSelection').modal('show');				
+		});
+		
+		$('#groupChatUserSelection').on('shown.bs.modal', function (e) {
+				updateUserSelectionModal($(this).attr('data-chat-id'));
+			})
 	};
 
 	return {
