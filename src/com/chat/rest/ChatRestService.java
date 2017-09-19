@@ -196,7 +196,32 @@ public class ChatRestService {
 		}						
 		return availableUserList;		
 	}
-	
+
+	@GET
+	@Path("/getUserGroupChat")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Set<GroupChatDto> getUserGroupChat(@QueryParam("loggedInUser") final String loggedInUser) {
+		try {
+			List<GroupChat> groupChatList = groupChatRepository.getGroupChatsForUser(loggedInUser);
+			Set<GroupChatDto> groupChats = new TreeSet<GroupChatDto>(new Comparator<GroupChatDto>() {
+
+				@Override
+				public int compare(GroupChatDto o1, GroupChatDto o2) {
+					return o1.getName().compareTo(o2.getName());
+				}
+			});
+
+			for(GroupChat groupChat : groupChatList) {
+				groupChats.add(getDtoUtil().convertIntoDto(groupChat));
+			}
+			return groupChats;						
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;		
+	}
+		
 	private Set<UserStatusDto> getAllUserList(String loggedInUser) {
 		List<User> userList = null;
 		try {

@@ -27,5 +27,7 @@ public interface GroupChatRepository extends CrudRepository<Message>{
 
 	void removeMemberFromGroupChat(Long chatId, String member)
 			throws SQLException;
+
+	List<GroupChat> getGroupChatsForUser(String user) throws SQLException;
 	
 }

@@ -234,7 +234,7 @@ border: 6px solid #f3f3f3;
   float: left;
   width:100%;
 }
-.member_list li:hover {
+#contactList .member_list li:hover {
   background: #428bca none repeat scroll 0 0;
   color: #fff;
   cursor:pointer;
@@ -291,6 +291,16 @@ border: 6px solid #f3f3f3;
     height: 300px;	
 	border: 1px solid lightgrey;    
 }
+#groupChatUserSelection .fa-plus, #groupChatUserSelection .fa-minus  {
+	margin-top: 10px;
+}
+#groupChatUserSelection i:hover {
+  color: #428bca;
+  font-size: 18px;
+  cursor:pointer;
+}
+
+
 .modal-ku {
   width: 420px;
   margin: auto;

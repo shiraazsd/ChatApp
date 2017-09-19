@@ -84,7 +84,7 @@ public class UserRepositoryImpl extends Dao implements UserRepository {
 			}			
 			String inClause = builder.deleteCharAt( builder.length() -1 ).toString();
 			sql = String.format(sql, inClause);
-			Map<Integer, String> parameters = new HashMap<>();
+			Map<Integer, Object> parameters = new HashMap<>();
 			for(int i = 1; i <= emailList.size(); ++i) {
 				parameters.put(i, emailList.get(i-1));
 			}

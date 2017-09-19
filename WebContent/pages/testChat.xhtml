@@ -50,12 +50,15 @@ Author: Prasanna Bhale
                   <li data-id="1"><a href="#">All Users </a></li>
                   <li data-id="2"><a href="#">Online Users</a></li>
                   <li data-id="3"><a href="#">Recent Users</a></li>
+                  <li data-id="4"><a href="#">Group Chats</a></li>
                </ul>
             </div>
+            <div id="contactList">
             <div class="member_list">
                <ul id="contactListContainer" class="list-unstyled">
 
                </ul>
+            </div>
             </div>
             <div class="all_conversation">
                <button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -180,6 +183,21 @@ Author: Prasanna Bhale
                      </div>
                   </li>
 	</script>			
+
+	<script type="text/template" id="group-chat-contact-entry-template">
+                  <li id="{{chat_list_id}}" data-chat-id="{{chat_id}}" data-chat-name="{{chat_name}}" class="clearfix group_chat_list_entry">
+                     <span class="chat-img pull-left">
+                     <img src="{{group_pic}}" alt="User Avatar" class="img-circle"></img>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec"> 	         
+                           <span><strong class="primary-font">{{chat_name}}</strong></span>
+							<span id="{{list_chat_notification_id}}" class="badge notification pull-right"></span>
+                        </div>
+                     </div>
+                  </li>
+	</script>			
+
 	<script type="text/template" id="group-user-contact-entry-template">
 				<li data-id-email="{{user_list_email}}" class="clearfix user_list_entry">
                      <span class="chat-img pull-left">
@@ -188,6 +206,7 @@ Author: Prasanna Bhale
                      <div class="chat-body clearfix">
                         <div class="header_sec">                        	
                            <span><strong class="primary-font">{{user_list_email}}</strong></span>
+							<i class="fa {{icon}} pull-right" aria-hidden="true"></i>                           
                         </div>
                      </div>
                   </li>

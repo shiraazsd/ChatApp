@@ -82,7 +82,8 @@ var chatsocket = function() {
 		$('.chat_input').unbind('keypress');
 		$('.chat_input').unbind('focus');
 		$('#userListCategory').find('li').unbind('click');
-		$('.user_list_entry').unbind('click');		
+		$('#contactList').find('.user_list_entry').unbind('click');		
+		$('#contactList').find('.group_chat_list_entry').unbind('çlick');
 		$('.chat_input').unbind('focus');
 		$('#newGroupChat').unbind('click');
 		$('.panel-title-groupchat').find('.chat_box_heading_text').unbind('click');				
@@ -90,6 +91,7 @@ var chatsocket = function() {
 		$('.chat_box_heading_text').unbind('keypress');		
 		$('.selectGroupChatUser').unbind('click');
 		$('#groupChatUserSelection').unbind('shown.bs.modal');
+		$('#groupChatUserSelection').find('i').unbind('click');
 
 		
 		$('.btn-chat-send').click(function() {
@@ -108,12 +110,20 @@ var chatsocket = function() {
 			$('#userListCategory').attr("data-current-selection", type);			
 			loadUserContactList(type);
 		});				
-		$('.user_list_entry').click(function() {
+		$('#contactList').find('.user_list_entry').click(function() {
 			var selectedUserEmail = $(this).attr('data-id-email');
 			createNewChatBox(selectedUserEmail);
 			var id = getChatWindowId(getElementIdSuffix(selectedUserEmail));
 			$('#'+id).find('.chat_input').focus();
 		});
+		$('#contactList').find('.group_chat_list_entry').click(function() {
+			var chatId = $(this).attr('data-chat-id');
+			var chatName = $(this).attr('data-chat-name');
+			createNewGroupChatBox(chatId, chatName, 'receipients');
+			var id = getChatWindowId(getElementIdSuffix(chatId));
+			$('#'+id).find('.chat_input').focus();
+		});
+
 		$('.chat_input').focus(function() {			
 	    	var to = $(this).closest('.input-group').find('.btn-chat-send').attr("data-id-email");
 	    	var notificationId = getChatUserNotificationId(getElementIdSuffix(to));
@@ -152,8 +162,12 @@ var chatsocket = function() {
 		});
 		
 		$('#groupChatUserSelection').on('shown.bs.modal', function (e) {
-				updateUserSelectionModal($(this).attr('data-chat-id'));
-			})
+			updateUserSelectionModal();
+		});
+		
+		$('#groupChatUserSelection').find('i').click(function(e) {
+			updateUserSelectionList($(this));
+		});
 	};
 
 	return {

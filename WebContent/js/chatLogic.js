@@ -108,7 +108,7 @@ var createNewChatBox = function(selectedUserEmail) {
 	displayUserNotificationCount(getChatUserNotificationId(idSuffix), getCurrentUserListNotification(selectedUserEmail));	
 	populateChatHistory(selectedUserEmail);
 	chatsocket.initAction();
-	addToOpenChatUsers(selectedUserEmail);
+	addToOpenChatUsers({id : selectedUserEmail, type : 'user'});
 	return true;
 };	
 
@@ -183,12 +183,16 @@ var initializeSessionStorage = function() {
 	}
 };
 
-var addToOpenChatUsers = function(user) {
-	var userList = JSON.parse(sessionStorage.getItem(OPEN_CHAT_USERS));
-	if(userList.indexOf(user) == -1) {
-		userList.push(user);
-		sessionStorage.setItem(OPEN_CHAT_USERS, JSON.stringify(userList));
+var addToOpenChatUsers = function(data) {
+	var dataList = JSON.parse(sessionStorage.getItem(OPEN_CHAT_USERS));
+	for(var i = 0; i < dataList.length; ++i) {
+		if(dataList[i].id == data.id && dataList[i].type == data.type) {
+			found = true;
+			return;
+		}
 	}
+	dataList.push(data);
+	sessionStorage.setItem(OPEN_CHAT_USERS, JSON.stringify(dataList));
 };
 
 var removeFromOpenChatUsers = function(user) {
@@ -205,20 +209,43 @@ var getOpenChatUsers = function(user) {
 };
 
 var createOpenChatUsersChatBox = function() {
-	var userList = getOpenChatUsers();
-	for(var i = 0; i < userList.length; ++i) {
-		createNewChatBox(userList[i]);
+	var dataList = getOpenChatUsers();
+	for(var i = 0; i < dataList.length; ++i) {
+		if(dataList[i].type == 'user') {
+			createNewChatBox(dataList[i].id);
+		} else {
+			createNewGroupChatBox(dataList[i].id, dataList[i].id);			
+		}
 	}
 };
 
 var loadUserContactList = function() {
 	var loggedInUser = getLoggedInUser();
 	var type = $('#userListCategory').attr("data-current-selection");
+	if(type == '4') {
+		fetchAndPopulateGroupChatContactList();
+	} else {
+		fetchAndPopulateUserContactList();		
+	}
+};
+
+var fetchAndPopulateUserContactList = function() {
+	var loggedInUser = getLoggedInUser();
+	var type = $('#userListCategory').attr("data-current-selection");
 	var userListApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getUsersList?loggedInUser=" + loggedInUser + "&type=" + type; 
 	$.getJSON(userListApiUrl,
 			   function(data) {
 					populateUserContactList(data);
-		 	   });			
+		 	   });				
+};
+
+var fetchAndPopulateGroupChatContactList = function() {
+	var loggedInUser = getLoggedInUser();
+	var groupChatListApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getUserGroupChat?loggedInUser=" + loggedInUser; 
+	$.getJSON(groupChatListApiUrl,
+			   function(data) {
+					populateGroupChatContactList(data);
+		 	   });				
 };
 
 var populateUserContactList = function(data) {
@@ -233,6 +260,20 @@ var populateUserContactList = function(data) {
 		setUserStatusIcon(getListUserStatusId(idSuffix), data[i].status);		
 		setUserStatusIcon(getChatUserStatusId(idSuffix), data[i].status);		
 		setUserNotificationCount(data[i].user, data[i].notification);	
+	}
+	chatsocket.initAction();	
+};
+
+var populateGroupChatContactList = function(data) {
+	$('#contactListContainer').empty();
+	var template = $("#group-chat-contact-entry-template").html();
+	var img = "https://cdn2.iconfinder.com/data/icons/people-groups/512/Group_Woman_2-512.png";
+	for(var i = 0; i < data.length; ++i) {
+		var idSuffix = getElementIdSuffix(data[i].id);
+		var params = { chat_list_id : getUserListEntryId(idSuffix), chat_id : data[i].id, chat_name : data[i].name, group_pic : img, list_chat_notification_id : getListUserNotificationId(idSuffix)};
+		var html = Mustache.render(template, params);						
+		$('#contactListContainer').append(html);
+//		setUserNotificationCount(data[i].user, data[i].notification);	
 	}
 	chatsocket.initAction();	
 };
@@ -353,34 +394,69 @@ var createNewGroupChatBox = function(chatId, chatName, recipient) {
 //	displayUserNotificationCount(getChatUserNotificationId(idSuffix), getCurrentUserListNotification(selectedUserEmail));	
 //	populateChatHistory(selectedUserEmail);
 	chatsocket.initAction();
-//	addToOpenChatUsers(selectedUserEmail);
+	addToOpenChatUsers({id : chatId, type : 'chat'});
 	return true;
 };	
 
-var populateSelectionList = function(id, data) {
+var populateSelectionList = function(id, data, iconClass) {
 	$('#'+id).empty();
 	var template = $("#group-user-contact-entry-template").html();
+	var loggedInUser = getLoggedInUser();
 	var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";
 	for(var i = 0; i < data.length; ++i) {
+		if(data[i].user == loggedInUser) 
+			continue;
 		var idSuffix = getElementIdSuffix(data[i].user);
-		var params = { user_list_email : data[i].user, user_pic : img};
+		var params = { user_list_email : data[i].user, user_pic : img, icon : iconClass};
 		var html = Mustache.render(template, params);						
 		$('#'+id).append(html);
 	}
 	chatsocket.initAction();		
-}
+};
 
-var updateUserSelectionModal = function(chatId) {
+var updateUserSelectionModal = function() {
+	var chatId = getSelectedGroupChatId();
 	var loggedInUser = getLoggedInUser();
 	var getGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getGroupChat?chatId=" + chatId; 
 	$.getJSON(getGroupChatApiUrl,
 			   function(data) {
-					populateSelectionList('modalGroupUserList', data.members);
+					populateSelectionList('modalGroupUserList', data.members, 'fa-minus');
 	});		
 	var getAvailableUserApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getAvailableUsers?chatId=" + chatId; 					
 	$.getJSON(getAvailableUserApiUrl,
 			   function(data) {
-		populateSelectionList('modalAvailableUserList', data);						
+		populateSelectionList('modalAvailableUserList', data, 'fa-plus');						
 	});
-}
+};
 
+var addMemberToGroupChat = function(chatId, user) {
+	var loggedInUser = getLoggedInUser();
+	var getaddMemberToGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/addMemberToGroupChat?chatId=" + chatId +"&user=" + user;
+	$.getJSON(getaddMemberToGroupChatApiUrl,
+			   function(data) {
+				updateUserSelectionModal();
+	});
+};
+
+var removeMemberFromGroupChat = function(chatId, user) {
+	var loggedInUser = getLoggedInUser();
+	var getremoveMemberFromGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/removeMemberFromGroupChat?chatId=" + chatId +"&user=" + user;
+	$.getJSON(getremoveMemberFromGroupChatApiUrl,
+			   function(data) {
+				updateUserSelectionModal();
+	});
+};
+
+var updateUserSelectionList = function(el) {
+	var isAdd = el.hasClass('fa-plus');
+	var user = el.closest('.header_sec').find('span').text();
+	if(isAdd) {
+		addMemberToGroupChat(getSelectedGroupChatId(), user);
+	} else {
+		removeMemberFromGroupChat(getSelectedGroupChatId(), user);
+	}
+};
+
+var getSelectedGroupChatId = function() {
+	return $('#groupChatUserSelection').attr('data-chat-id')	
+};
