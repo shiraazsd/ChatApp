@@ -56,8 +56,8 @@ public class GroupChatRepositoryImpl extends Dao implements GroupChatRepository 
 					groupChat.setId(rs.getLong("id"));
 					groupChat.setName(rs.getString("chatname"));
 				}
-				members.add(new UserStatusDto(rs.getString("user"), Constants.OFFLINE));
-			}			
+				members.add(new UserStatusDto(rs.getLong("userid"), rs.getString("user"), Constants.OFFLINE));
+			}					
 			groupChat.setMembers(members);
 			return groupChat;
 		} catch (Exception e) {
@@ -108,14 +108,14 @@ public class GroupChatRepositoryImpl extends Dao implements GroupChatRepository 
 	}
 
 	@Override
-	public String update(Long chatId, String chatName) throws SQLException {
+	public String update(Long groupChatId, String groupChatName) throws SQLException {
 	try{
 		String sql = "update groupchat set name = ? where id = ?";
 		Map<Integer, Object> parameters = new HashMap<>();
-		parameters.put(1, chatName);
-		parameters.put(2, chatId);		
+		parameters.put(1, groupChatName);
+		parameters.put(2, groupChatId);		
 		executeUpdate(sql, parameters);
-		return chatName;
+		return groupChatName;
 	} catch (Exception e) {
 		e.printStackTrace();
 		throw new SQLException("Failed to create new group chat");
@@ -125,15 +125,15 @@ public class GroupChatRepositoryImpl extends Dao implements GroupChatRepository 
 	}
 	
 	@Override
-	public void addMemberToGroupChat(Long chatId, String member) throws SQLException {
-		if(checkGroupChatHasMember(chatId, member)) {
+	public void addMemberToGroupChat(Long groupChatId, String member) throws SQLException {
+		if(checkGroupChatHasMember(groupChatId, member)) {
 			return;
 		}
 		User user = userRepository.getUserByEmail(member);
 	try{
 		sql = "insert into groupchatuser(groupchat_id, user_id, status) values(?, ?, ?)";
 		Map<Integer, Object> parameters = new HashMap<>();
-		parameters.put(1, chatId);
+		parameters.put(1, groupChatId);
 		parameters.put(2, user.getId());		
 		parameters.put(3, Constants.GROUP_CHAT_ACTIVE);		
 		executeUpdate(sql, parameters);
@@ -146,15 +146,15 @@ public class GroupChatRepositoryImpl extends Dao implements GroupChatRepository 
 	}
 
 	@Override
-	public void removeMemberFromGroupChat(Long chatId, String member) throws SQLException {
-		if(!checkGroupChatHasMember(chatId, member)) {
+	public void removeMemberFromGroupChat(Long groupChatId, String member) throws SQLException {
+		if(!checkGroupChatHasMember(groupChatId, member)) {
 			return;
 		}
 		User user = userRepository.getUserByEmail(member);
 	try{
 		sql = "delete from groupchatuser where groupchat_id = ? and user_id = ?";
 		Map<Integer, Object> parameters = new HashMap<>();
-		parameters.put(1, chatId);
+		parameters.put(1, groupChatId);
 		parameters.put(2, user.getId());		
 		executeUpdate(sql, parameters);
 	} catch (Exception e) {
@@ -167,15 +167,15 @@ public class GroupChatRepositoryImpl extends Dao implements GroupChatRepository 
 	
 	
 	@Override
-	public GroupChat findGroupChatById(Long chatId) throws SQLException {
+	public GroupChat findGroupChatById(Long groupChatId) throws SQLException {
 	try{
-		sql = "select g.id, g.name as chatname, u.email as user from groupchat g left outer join groupchatuser gu on g.id = gu.groupchat_id left outer join user u on gu.user_id = u.id_user where g.id = ?";
+		sql = "select g.id, g.name as chatname, u.email as user, u.id_user as userid from groupchat g left outer join groupchatuser gu on g.id = gu.groupchat_id left outer join user u on gu.user_id = u.id_user where g.id = ?";
 		Map<Integer, Object> parameters = new HashMap<>();
-		parameters.put(1, chatId);
+		parameters.put(1, groupChatId);
 		return getGroupChatWithMemberByRs(getResulsetOf(sql, parameters));
 	} catch (Exception e) {
 		e.printStackTrace();
-		throw new SQLException("Cannot retrieve unread message count");
+		throw new SQLException("findGroupChatById");
 	}  finally {
 		closeConections();
 	}				
@@ -200,7 +200,7 @@ public class GroupChatRepositoryImpl extends Dao implements GroupChatRepository 
 	@Override
 	public GroupChat findGroupChatByName(String chatName) throws SQLException {
 	try{
-		sql = "select g.id, g.name as chatname, u.email as user from groupchat g left outer join groupchatuser gu on g.id = gu.groupchat_id left outer join user u on gu.user_id = u.id_user where g.name = ?";
+		sql = "select g.id, g.name as chatname, u.email as user, u.id_user as userid from groupchat g left outer join groupchatuser gu on g.id = gu.groupchat_id left outer join user u on gu.user_id = u.id_user where g.name = ?";
 		Map<Integer, Object> parameters = new HashMap<>();
 		parameters.put(1, chatName);
 		return getGroupChatWithMemberByRs(getResulsetOf(sql, parameters));
@@ -213,11 +213,11 @@ public class GroupChatRepositoryImpl extends Dao implements GroupChatRepository 
 	}
 
 	@Override
-	public boolean checkGroupChatHasMember(Long chatId, String user) throws SQLException {
+	public boolean checkGroupChatHasMember(Long groupChatId, String user) throws SQLException {
 	try{
 		sql = "select count(*) as count from groupchat g left outer join groupchatuser gu on g.id = gu.groupchat_id left outer join user u on gu.user_id = u.id_user where g.id = ? and u.email = ?";
 		Map<Integer, Object> parameters = new HashMap<>();
-		parameters.put(1, chatId);
+		parameters.put(1, groupChatId);
 		parameters.put(2, user);
 		return getCountByRS(getResulsetOf(sql, parameters)) >= 1;
 	} catch (Exception e) {

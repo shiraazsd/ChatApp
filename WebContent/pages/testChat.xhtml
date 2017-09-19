@@ -94,7 +94,7 @@ Author: Prasanna Bhale
 	<script type="text/javascript" src="#{request.contextPath}/js/chatLogic.js">
 	</script>
 	<script type="text/template" id="chat-window-template">
-			<div class="row chat-window col-xs-5 col-md-3" id="{{chat_window_id}}">
+			<div class="row chat-window col-xs-5 col-md-3 personal_chat_window" id="{{chat_window_id}}">
 				<div class="col-xs-12 col-md-12">
 					<div class="panel panel-default">
 						<div class="panel-heading top-bar">
@@ -132,7 +132,7 @@ Author: Prasanna Bhale
 	</script>			
 
 	<script type="text/template" id="group-chat-window-template">
-			<div class="row chat-window col-xs-5 col-md-3" id="{{chat_window_id}}" data-chat-id="{{chat_id}}">
+			<div class="row chat-window col-xs-5 col-md-3 group_chat_window" id="{{chat_window_id}}" data-chat-id="{{chat_id}}">
 				<div class="col-xs-12 col-md-12">
 					<div class="panel panel-default">
 						<div class="panel-heading top-bar">
@@ -160,7 +160,7 @@ Author: Prasanna Bhale
 									class="form-control input-sm chat_input"
 									placeholder="Write your message here..." /> <span
 									class="input-group-btn">
-									<button class="btn btn-primary btn-sm btn-chat-send" id="btn-chat" data-id-email="{{chat_user_email}}" data-id="{{btn_input_id}}" data-id-msg-panel="{{msg_panel_id}}">Send</button>
+									<button class="btn btn-primary btn-sm btn-chat-send" id="btn-chat" data-chat-id="{{chat_id}}" data-id="{{btn_input_id}}" data-id-msg-panel="{{msg_panel_id}}">Send</button>
 								</span>
 							</div>
 						</div>

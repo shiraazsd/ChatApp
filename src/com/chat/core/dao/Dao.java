@@ -69,6 +69,7 @@ public class Dao {
 	protected ResultSet getResulsetOf(String SQL, Map<Integer, Object> params) throws SQLException{
 		try {
 			System.out.println("SQL : " + SQL);
+			System.out.println("Params : " + params);			
 			PreparedStatement ps = getPrepareStatement(SQL);
 			for(Integer index : params.keySet()) {
 				ps.setObject(index, params.get(index));
@@ -96,7 +97,27 @@ public class Dao {
 		}
 	}
 
+	protected int[] executeBatch(String SQL, List<Map<Integer, Object>> batchParamsList) throws SQLException{
+		try {
+			System.out.println("executeUpdate : " + SQL);
+			System.out.println("executeUpdate : " + batchParamsList);
+			PreparedStatement ps = getPrepareStatement(SQL);
+			for(Map<Integer, Object> params : batchParamsList) {
+				for(Integer index : params.keySet()) {
+					ps.setObject(index, params.get(index));
+				}
+				ps.addBatch();
+				ps.clearParameters();
+			}
+			int result[] = ps.executeBatch();
+			return result;
+		} catch (SQLException e) {
+			LOGGER.error("fail getting resultset", e);
+		    throw new SQLException("fail get resultset", e);
+		}
+	}
 
+	
 	private void closeConection() {
 		try {
 			if (connection != null) {

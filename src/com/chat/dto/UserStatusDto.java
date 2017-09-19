@@ -1,11 +1,17 @@
 package com.chat.dto;
 
 public class UserStatusDto {
+	private Long id;
 	private String user;
 	private String status;
 	private int notification;
 
-	public UserStatusDto(String user, String status) {
+	public UserStatusDto(String user) {
+		this.user = user;
+	}
+	
+	public UserStatusDto(Long id, String user, String status) {
+		this.id = id;
 		this.user = user;
 		this.status = status;
 	}
@@ -29,5 +35,13 @@ public class UserStatusDto {
 
 	public void setNotification(int notification) {
 		this.notification = notification;
+	}	
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}	
 }

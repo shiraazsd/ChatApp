@@ -135,6 +135,31 @@ var populateChatHistory = function(toUser) {
 		 	   });		
 };
 
+
+var populateGroupChatHistory = function(chatId) {
+	var loggedInUser = getLoggedInUser();
+	var groupChatMessageHistoryApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/groupChatMessages?user=" + loggedInUser + "&chatId=" + chatId; 
+	$.getJSON(groupChatMessageHistoryApiUrl,
+			   function(data) {
+				 var loggedInUser = getLoggedInUser();
+				 var chatId = data.from;
+				 messageList = data.messageList;
+				 var idSuffix = getElementIdSuffix(chatId);
+			     hideLoader(getChatBoxLoaderId(idSuffix));
+				 if(messageList.length == 0)
+					 return;
+			   	 for(var i = 0; i < messageList.length; ++i) {
+			   		 if(messageList[i].from == loggedInUser) {
+			   			appendSendMessageToChat(idSuffix, messageList[i].content);
+			   		 } else{
+			   			appendReceiveMessageToChat(idSuffix, messageList[i].content);			   			 
+			   		 }
+			   	 }
+			 	scrollToBottom(chatId);
+		 	   });		
+};
+
+
 var getLoggedInUser = function() {
 	return user = $("#loggedInUser").text();
 }
@@ -197,7 +222,13 @@ var addToOpenChatUsers = function(data) {
 
 var removeFromOpenChatUsers = function(user) {
 	var userList = JSON.parse(sessionStorage.getItem(OPEN_CHAT_USERS));
-	var index = userList.indexOf(user);
+	var index = 0;
+	for(index = 0; index < userList.length; ++index){
+		if(userList[index].id == user.id && userList[index].type == user.type) {
+			break;
+		}
+	}
+	--index
 	if (index > -1) {
 	    userList.splice(index, 1);
 	}
@@ -273,10 +304,11 @@ var populateGroupChatContactList = function(data) {
 		var params = { chat_list_id : getUserListEntryId(idSuffix), chat_id : data[i].id, chat_name : data[i].name, group_pic : img, list_chat_notification_id : getListUserNotificationId(idSuffix)};
 		var html = Mustache.render(template, params);						
 		$('#contactListContainer').append(html);
-//		setUserNotificationCount(data[i].user, data[i].notification);	
+		setUserNotificationCount(data[i].id, data[i].notification);	
 	}
 	chatsocket.initAction();	
 };
+
 
 var getUserAvailableStatusIcon = function(status) {
 	if(status == '1')
@@ -335,6 +367,15 @@ var markMessagesAsRead = function(fromUser) {
 		 	   });				
 };
 
+var markGroupChatMessagesAsRead = function(chatId) {
+	var user = getLoggedInUser();
+	var markGroupChatReadMessagesApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/markGroupChatMessagesAsRead?user=" + user + "&chatId=" + chatId; 
+	$.getJSON(markGroupChatReadMessagesApiUrl,
+			   function(data) {
+					loadUserContactList();
+		 	   });				
+};
+
 var updateNotification = function(fromUser) {
 	var id = getChatBoxLoaderId(getElementIdSuffix(fromUser));
 	if($('#'+id).is(':focus')) {
@@ -360,7 +401,7 @@ var createNewGroupChat = function() {
 	var createNewGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/createNewGroupChat?loggedInUser=" + loggedInUser; 
 	$.getJSON(createNewGroupChatApiUrl,
 			   function(data) {
-					createNewGroupChatBox(data.id, data.name, 'test1');	
+					createNewGroupChatBox(data.id, data.name);	
 	});	
 };
 
@@ -368,11 +409,12 @@ var updateGroupChat = function(chatId, chatNameNew) {
 	var createNewGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/updateGroupChat?chatId=" + chatId + "&chatNameNew=" + chatNameNew; 
 	$.getJSON(createNewGroupChatApiUrl,
 			   function(data) {
+				loadUserContactList();			
 	});	
 };
 
 
-var createNewGroupChatBox = function(chatId, chatName, recipient) {
+var createNewGroupChatBox = function(chatId, chatName) {
 	var template = $("#group-chat-window-template").html();
 	var idSuffix = getElementIdSuffix(chatId);
 	var maxChat = 4;
@@ -385,14 +427,14 @@ var createNewGroupChatBox = function(chatId, chatName, recipient) {
 		closeFirstChatBox();		
 	}				
 	
-	var data = { chat_window_id : getChatWindowId(idSuffix), chat_user_email : recipient, name : chatName, minim_id : getMinimId(idSuffix), msg_panel_id : getMsgPanelId(idSuffix), btn_input_id : getBtnInputId(idSuffix), loader_id : getChatBoxLoaderId(idSuffix), chat_user_notification_id : getChatUserNotificationId(idSuffix), chat_id : chatId};	
+	var data = { chat_window_id : getChatWindowId(idSuffix), name : chatName, minim_id : getMinimId(idSuffix), msg_panel_id : getMsgPanelId(idSuffix), btn_input_id : getBtnInputId(idSuffix), loader_id : getChatBoxLoaderId(idSuffix), chat_user_notification_id : getChatUserNotificationId(idSuffix), chat_id : chatId};	
 	
 	var html = Mustache.render(template, data);		
 	
 	$('#chatBoxContainer').append(html);
 	reArrangeChatBox();
 //	displayUserNotificationCount(getChatUserNotificationId(idSuffix), getCurrentUserListNotification(selectedUserEmail));	
-//	populateChatHistory(selectedUserEmail);
+	populateGroupChatHistory(chatId);
 	chatsocket.initAction();
 	addToOpenChatUsers({id : chatId, type : 'chat'});
 	return true;
@@ -459,4 +501,12 @@ var updateUserSelectionList = function(el) {
 
 var getSelectedGroupChatId = function() {
 	return $('#groupChatUserSelection').attr('data-chat-id')	
+};
+
+var hasAttribute = function(element, attribute) {
+	var attr = $(element).attr(attribute);
+	if (typeof attr !== typeof undefined && attr !== false) {
+		return true;
+	}
+	return false;
 };

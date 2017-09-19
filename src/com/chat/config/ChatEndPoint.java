@@ -1,7 +1,9 @@
 package com.chat.config;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -11,9 +13,14 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
 import com.chat.core.dao.ex.SQLException;
+import com.chat.core.domain.GroupChat;
+import com.chat.core.repository.GroupChatRepository;
 import com.chat.core.repository.MessageRepository;
+import com.chat.core.repository.impl.GroupChatRepositoryImpl;
 import com.chat.core.repository.impl.MessageRepositoryImpl;
 import com.chat.core.util.Constants;
+import com.chat.core.util.UserStatusDtoComparator;
+import com.chat.dto.UserStatusDto;
 
 @ServerEndpoint(value = "/chat/{username}", decoders = MessageDecoder.class, encoders = MessageEncoder.class)
 public class ChatEndPoint {
@@ -21,6 +28,8 @@ public class ChatEndPoint {
 	private final Logger log = Logger.getLogger(getClass().getName());
 
 	private static MessageRepository messageRespoitory = MessageRepositoryImpl.getInstance();
+	
+	private GroupChatRepository groupChatRepository = GroupChatRepositoryImpl.getInstance();
 	
 	private Session session;
 	private String username;
@@ -44,8 +53,56 @@ public class ChatEndPoint {
 		log.info(message.toString());
 		System.out.println("onMessage : " + message.toString());
 		message.setFrom(users.get(session.getId()));
+		handleMessage(message);
+	}
+	
+	private void handleMessage(Message message) throws IOException, EncodeException {
+		if(message.isGroupChat()) {
+			handleGroupChatMessage(message);
+		} else {
+			handlePersonalMessage(message);
+		}
+	}
+	
+	private void handlePersonalMessage(Message message) throws IOException, EncodeException {
 		persistMessage(message);
-		sendMessageToOneUser(message);
+		sendMessageToOneUser(message);		
+	}
+	
+	private void removeSender(List<UserStatusDto> dtoList, String sender) {
+		UserStatusDto searchDto = new UserStatusDto(sender);
+		int index = Collections.binarySearch(dtoList, searchDto, new UserStatusDtoComparator());
+		dtoList.remove(index);
+	}
+	
+	private void handleGroupChatMessage(Message message) throws IOException, EncodeException {
+		try {
+			Long groupChatId = Long.parseLong(message.getId());
+			List<UserStatusDto> userList = groupChatRepository.findGroupChatById(groupChatId).getMembers();
+			persistGroupChatMessage(groupChatId, message.getFrom(), message.getContent(), userList);
+			removeSender(userList, message.getFrom());
+			for(UserStatusDto dto : userList) {
+				Message m = new Message();
+				m.setTo(dto.getUser());
+				m.setFrom(message.getFrom());
+				m.setContent(message.getContent());
+				m.setId(String.valueOf(groupChatId));
+				m.setGroupChat(true);
+				sendMessageToOneUser(m);
+			}
+		} catch (SQLException e) {
+			System.out.print("Unable to persist message");
+			e.printStackTrace();
+		}				
+	}
+
+	private static void persistGroupChatMessage(Long groupChatId, String fromUser, String content, List<UserStatusDto> userList) {
+		try {
+			messageRespoitory.create(fromUser, content, groupChatId);
+		} catch (SQLException e) {
+			System.out.print("Unable to persist group chat message");
+			e.printStackTrace();
+		}		
 	}
 	
 	private static void persistMessage(Message message) {

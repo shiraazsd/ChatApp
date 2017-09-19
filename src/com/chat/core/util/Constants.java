@@ -11,6 +11,8 @@ public class Constants {
 	public static final String OFFLINE = "0";
 	
 	public static final int CHAT_MESSAGE_LIMIT = 8;
+
+	public static final int GROUP_CHAT_MESSAGE_LIMIT = 20;
 	
 	public static final String ALL_USERS = "1";
 

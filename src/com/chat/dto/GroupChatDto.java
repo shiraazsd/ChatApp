@@ -6,6 +6,7 @@ public class GroupChatDto {
 	private Long id;
 	private String name;
 	private List<UserStatusDto> members;
+	private int notification;
 	
 	public List<UserStatusDto> getMembers() {
 		return members;
@@ -24,6 +25,12 @@ public class GroupChatDto {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}	
+	public int getNotification() {
+		return notification;
 	}
-	
+	public void setNotification(int notification) {
+		this.notification = notification;
+	}
+
 }

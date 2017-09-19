@@ -1,9 +1,6 @@
 package com.chat.rest;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +18,6 @@ import com.chat.core.domain.GroupChat;
 import com.chat.core.domain.Message;
 import com.chat.core.domain.User;
 import com.chat.core.repository.GroupChatRepository;
-import com.chat.core.repository.GroupRepository;
 import com.chat.core.repository.MessageRepository;
 import com.chat.core.repository.UserRepository;
 import com.chat.core.repository.impl.GroupChatRepositoryImpl;
@@ -29,6 +25,8 @@ import com.chat.core.repository.impl.GroupRepositoryImpl;
 import com.chat.core.repository.impl.MessageRepositoryImpl;
 import com.chat.core.repository.impl.UserRepositoryImpl;
 import com.chat.core.util.Constants;
+import com.chat.core.util.GroupChatDtoComparator;
+import com.chat.core.util.UserStatusDtoComparator;
 import com.chat.dto.ChatMessageResponseDto;
 import com.chat.dto.GroupChatDto;
 import com.chat.dto.MessageDto;
@@ -101,6 +99,21 @@ public class ChatRestService {
 		}
 		return -1;
 	}
+
+	@GET
+	@Path("/markGroupChatMessagesAsRead")
+	@Produces(MediaType.APPLICATION_JSON)
+	public int markGroupChatMessagesAsRead(@QueryParam("user") final String user, @QueryParam("chatId") final Long groupChatId) {
+		try {
+			int count = messageRepository.markAllMessagesAsReadInGroupChat(user, groupChatId);
+			System.out.print("Marked messages as read : " + count);
+			return count;
+		} catch (SQLException e) {
+			System.out.println("Unable to update message status to Read");
+			e.printStackTrace();
+		}
+		return -1;
+	}
 	
 	@GET
 	@Path("/createNewGroupChat")
@@ -108,9 +121,9 @@ public class ChatRestService {
 	public GroupChatDto createNewGroupChat(@QueryParam("loggedInUser") final String loggedInUser) {
 		try {
 			String chatName = groupChatRepository.create();
-			Long chatId = groupChatRepository.findGroupChatByName(chatName).getId();
-			groupChatRepository.addMemberToGroupChat(chatId, loggedInUser);
-			return getDtoUtil().convertIntoDto(groupChatRepository.findGroupChatById(chatId));
+			Long groupChatId = groupChatRepository.findGroupChatByName(chatName).getId();
+			groupChatRepository.addMemberToGroupChat(groupChatId, loggedInUser);
+			return getDtoUtil().convertIntoDto(groupChatRepository.findGroupChatById(groupChatId));
 		} catch (SQLException e) {
 			System.out.println("Unable to update message status to Read");
 			e.printStackTrace();
@@ -121,10 +134,10 @@ public class ChatRestService {
 	@GET
 	@Path("/updateGroupChat")
 	@Produces(MediaType.APPLICATION_JSON)
-	public GroupChatDto updateGroupChat(@QueryParam("chatId") final Long chatId, @QueryParam("chatNameNew") final String chatNameNew, @QueryParam("loggedInUser") final String loggedInUser) {
+	public GroupChatDto updateGroupChat(@QueryParam("chatId") final Long groupChatId, @QueryParam("chatNameNew") final String chatNameNew, @QueryParam("loggedInUser") final String loggedInUser) {
 		try {
-			String chatName = groupChatRepository.update(chatId, chatNameNew);
-			return getDtoUtil().convertIntoDto(groupChatRepository.findGroupChatById(chatId));
+			String chatName = groupChatRepository.update(groupChatId, chatNameNew);
+			return getDtoUtil().convertIntoDto(groupChatRepository.findGroupChatById(groupChatId));
 		} catch (SQLException e) {
 			System.out.println("Unable to update message status to Read");
 			e.printStackTrace();
@@ -135,10 +148,10 @@ public class ChatRestService {
 	@GET
 	@Path("/addMemberToGroupChat")
 	@Produces(MediaType.APPLICATION_JSON)
-	public GroupChatDto addMemberToGroupChat(@QueryParam("chatId") final Long chatId,@QueryParam("user") final String user) {
+	public GroupChatDto addMemberToGroupChat(@QueryParam("chatId") final Long groupChatId,@QueryParam("user") final String user) {
 		try {
-			groupChatRepository.addMemberToGroupChat(chatId, user);
-			return getDtoUtil().convertIntoDto(groupChatRepository.findGroupChatById(chatId));
+			groupChatRepository.addMemberToGroupChat(groupChatId, user);
+			return getDtoUtil().convertIntoDto(groupChatRepository.findGroupChatById(groupChatId));
 		} catch (SQLException e) {
 			System.out.println("Unable to update message status to Read");
 			e.printStackTrace();
@@ -149,10 +162,10 @@ public class ChatRestService {
 	@GET
 	@Path("/removeMemberFromGroupChat")
 	@Produces(MediaType.APPLICATION_JSON)
-	public GroupChatDto removeMemberFromGroupChat(@QueryParam("chatId") final Long chatId,@QueryParam("user") final String user) {
+	public GroupChatDto removeMemberFromGroupChat(@QueryParam("chatId") final Long groupChatId,@QueryParam("user") final String user) {
 		try {
-			groupChatRepository.removeMemberFromGroupChat(chatId, user);
-			return getDtoUtil().convertIntoDto(groupChatRepository.findGroupChatById(chatId));
+			groupChatRepository.removeMemberFromGroupChat(groupChatId, user);
+			return getDtoUtil().convertIntoDto(groupChatRepository.findGroupChatById(groupChatId));
 		} catch (SQLException e) {
 			System.out.println("Unable to update message status to Read");
 			e.printStackTrace();
@@ -163,9 +176,9 @@ public class ChatRestService {
 	@GET
 	@Path("/getGroupChat")
 	@Produces(MediaType.APPLICATION_JSON)
-	public GroupChatDto getGroupChat(@QueryParam("chatId") final Long chatId) {
+	public GroupChatDto getGroupChat(@QueryParam("chatId") final Long groupChatId) {
 		try {
-			return getDtoUtil().convertIntoDto(groupChatRepository.findGroupChatById(chatId));
+			return getDtoUtil().convertIntoDto(groupChatRepository.findGroupChatById(groupChatId));
 		} catch (SQLException e) {
 			System.out.println("Unable to update message status to Read");
 			e.printStackTrace();
@@ -176,10 +189,10 @@ public class ChatRestService {
 	@GET
 	@Path("/getAvailableUsers")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<UserStatusDto> getAvailableUsers(@QueryParam("chatId") final Long chatId) {
+	public List<UserStatusDto> getAvailableUsers(@QueryParam("chatId") final Long groupChatId) {
 		List<UserStatusDto> allUserList = new ArrayList<UserStatusDto>();
 		allUserList.addAll(getAllUserList(null));
-		List<UserStatusDto> chatGroupUserList = getGroupChat(chatId).getMembers();
+		List<UserStatusDto> chatGroupUserList = getGroupChat(groupChatId).getMembers();
 		List<UserStatusDto> availableUserList = new ArrayList<UserStatusDto>();
 		boolean flag = false;
 		for(UserStatusDto dto1 : allUserList) {
@@ -203,17 +216,12 @@ public class ChatRestService {
 	public Set<GroupChatDto> getUserGroupChat(@QueryParam("loggedInUser") final String loggedInUser) {
 		try {
 			List<GroupChat> groupChatList = groupChatRepository.getGroupChatsForUser(loggedInUser);
-			Set<GroupChatDto> groupChats = new TreeSet<GroupChatDto>(new Comparator<GroupChatDto>() {
-
-				@Override
-				public int compare(GroupChatDto o1, GroupChatDto o2) {
-					return o1.getName().compareTo(o2.getName());
-				}
-			});
+			Set<GroupChatDto> groupChats = new TreeSet<GroupChatDto>(new GroupChatDtoComparator());
 
 			for(GroupChat groupChat : groupChatList) {
 				groupChats.add(getDtoUtil().convertIntoDto(groupChat));
 			}
+			populateGroupChatNotificationCount(groupChats, loggedInUser);
 			return groupChats;						
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -221,7 +229,27 @@ public class ChatRestService {
 		}
 		return null;		
 	}
-		
+
+	@GET
+	@Path("/groupChatMessages")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ChatMessageResponseDto getMessageFromToGroupChat(@QueryParam("user") final String user, @QueryParam("chatId") final Long groupChatId) { 
+		ChatMessageResponseDto response = new ChatMessageResponseDto();
+		List<MessageDto> result = null;
+		try {
+			List<Message> messageList = messageRepository.getLastFewMessagesForGroupChat(user, groupChatId, Constants.GROUP_CHAT_MESSAGE_LIMIT);
+			result = getDtoUtil().convertIntoDto(messageList);
+			response.setFrom(String.valueOf(groupChatId));
+			response.setTo(user);
+			response.setMessageList(result);
+		} catch (SQLException e) {
+			System.out.print("Unable to retrieve from:to messages");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return response;
+	}
+	
 	private Set<UserStatusDto> getAllUserList(String loggedInUser) {
 		List<User> userList = null;
 		try {
@@ -262,13 +290,7 @@ public class ChatRestService {
 	
 	private Set<UserStatusDto> getUserStatusDtoList(List<User> userList, String loggedInUser) {
 		System.out.print("UserList : " + userList);
-		Set<UserStatusDto> users = new TreeSet<UserStatusDto>(new Comparator<UserStatusDto>() {
-
-			@Override
-			public int compare(UserStatusDto o1, UserStatusDto o2) {
-				return o1.getUser().compareTo(o2.getUser());
-			}
-		});
+		Set<UserStatusDto> users = new TreeSet<UserStatusDto>(new UserStatusDtoComparator());
 		Set<String> onlineUsers = ChatEndPoint.getOnlineUsers();
 		for(User user : userList) {
 			if(user.getEmail().equals(loggedInUser)) {
@@ -276,9 +298,9 @@ public class ChatRestService {
 			}
 			
 			if(onlineUsers.contains(user.getEmail())) {
-				users.add(new UserStatusDto(user.getEmail(), Constants.ONLINE));
+				users.add(new UserStatusDto(user.getId(), user.getEmail(), Constants.ONLINE));
 			} else {
-				users.add(new UserStatusDto(user.getEmail(), Constants.OFFLINE));
+				users.add(new UserStatusDto(user.getId(), user.getEmail(), Constants.OFFLINE));
 			}
 		}
 		return users;
@@ -299,14 +321,30 @@ public class ChatRestService {
 		}
 
 	}
+
+	private void populateGroupChatNotificationCount(Set<GroupChatDto> groupChats, String loggedInUser) {		
+		try {
+			Map<Long, Integer> userCountMap = messageRepository.getUnreadMessageCountForGroupChat(loggedInUser);
+			for(GroupChatDto dto : groupChats) {
+				if(userCountMap.containsKey(dto.getId())) {
+					dto.setNotification(userCountMap.get(dto.getId()));
+				}
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
 	
 	private DtoUtil getDtoUtil() {
 		return DtoUtil.getInstance();
 	}
 	
-	private GroupChatDto getActiveGroupChat(Long chatId, String loggedInUser) {
+	private GroupChatDto getActiveGroupChat(Long groupChatId, String loggedInUser) {
 		try {
-			GroupChat groupChat = groupChatRepository.findGroupChatById(chatId);
+			GroupChat groupChat = groupChatRepository.findGroupChatById(groupChatId);
 			GroupChatDto dto = getDtoUtil().convertIntoDto(groupChat);
 			return dto;
 		} catch (SQLException e) {

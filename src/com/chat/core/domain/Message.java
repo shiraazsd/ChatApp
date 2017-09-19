@@ -35,8 +35,9 @@ public class Message extends Auditory implements Serializable {
 	/**
 	 * group who receive message
 	 */
-	private Group group;
-
+	private GroupChat groupChat;
+	
+	
 	public Message() {
 		super();
 	}
@@ -73,12 +74,12 @@ public class Message extends Auditory implements Serializable {
 		this.statusMesage = statusMesage;
 	}
 
-	public Group getGroup() {
-		return group;
+	public GroupChat getGroupChat() {
+		return groupChat;
 	}
 
-	public void setGroup(Group group) {
-		this.group = group;
+	public void setGroupChat(GroupChat groupChat) {
+		this.groupChat = groupChat;
 	}
 
 	@Override

@@ -5,10 +5,29 @@ public class Message {
 	private String from;
 	private String to;
 	private String content;
-
+	private String id;
+	private boolean isGroupChat;
+	
 	@Override
 	public String toString() {
 		return super.toString();
+	}
+
+	public boolean isGroupChat() {
+		return isGroupChat;
+	}
+
+	public void setGroupChat(boolean isGroupChat) {
+		this.isGroupChat = isGroupChat;
+	}
+
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getFrom() {

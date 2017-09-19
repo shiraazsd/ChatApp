@@ -40,22 +40,32 @@ var chatsocket = function() {
 			var message = JSON.parse(event.data);
 			//Refresh the list since there is a user which is online/offline now
 			if(message.content == 'refreshContact') {
-				loadUserContactList();
+				refreshContactList();
 			} else {
-				var idSuffix = getElementIdSuffix(message.from);
-				var status = createNewChatBox(message.from);				
+				var idSuffix;
+				var status;
+				var id;
+				if(message.isGroupChat) {
+					idSuffix = getElementIdSuffix(message.id);
+					status = createNewGroupChatBox(message.id, message.id);
+					id = message.id;
+				} else {
+					idSuffix = getElementIdSuffix(message.from);						
+					status = createNewChatBox(message.from);
+					id = message.from;
+				}				
 				if(!status) {
 					var msg_panel_id = getMsgPanelId(idSuffix);			
 					$("#"+msg_panel_id).append(messageReceive(message.content));
 				}
-		    	scrollToBottom(message.from);
-				updateNotification(message.from);
+		    	scrollToBottom(id);
+				updateNotification(id);
 			}
 		};
 
 	};
 
-	var sendMessage = function(element) {
+	var sendPersonalMessage = function(element) {
 		var inputElementId = element.attr("data-id");
 		var to = element.attr("data-id-email");
 		var msg_panel_id = element.attr("data-id-msg-panel");
@@ -70,15 +80,42 @@ var chatsocket = function() {
 
 		var json = JSON.stringify({
 			"to" : to,
-			"content" : content
+			"content" : content,
+			"isGroupChat" : false,
+			"id" : null 
 		});
 
 		ws.send(json);
 		$("#"+msg_panel_id).append(messageSend(content));
 	};
 
+	var sendGroupChatMessage = function(element) {
+		var inputElementId = element.attr("data-id");
+		var chatId = element.attr("data-chat-id");
+		var msg_panel_id = element.attr("data-id-msg-panel");
+		
+		//Validating the inputs
+		var content = $("#"+inputElementId).val();
+		//Reset the input fields
+		$("#"+inputElementId).val('');
+		if(!content) {
+			return;
+		}
+
+		var json = JSON.stringify({
+			"to" : null,
+			"content" : content,
+			"isGroupChat" : true,
+			"id" : chatId 
+		});
+
+		ws.send(json);
+		$("#"+msg_panel_id).append(messageSend(content));
+	};
+	
 	var eventClick = function() {
-		$('.btn-chat-send').unbind('click');		
+		$('.personal_chat_window').find('.btn-chat-send').unbind('click');		
+		$('.group_chat_window').find('.btn-chat-send').unbind('click');		
 		$('.chat_input').unbind('keypress');
 		$('.chat_input').unbind('focus');
 		$('#userListCategory').find('li').unbind('click');
@@ -94,11 +131,17 @@ var chatsocket = function() {
 		$('#groupChatUserSelection').find('i').unbind('click');
 
 		
-		$('.btn-chat-send').click(function() {
+		$('.personal_chat_window').find('.btn-chat-send').click(function() {
 			console.log();
-			sendMessage($(this));
+			sendPersonalMessage($(this));
 	    	var to = $(this).closest('.input-group').find('.btn-chat-send').attr("data-id-email");
 	    	scrollToBottom(to);
+		});
+		$('.group_chat_window').find('.btn-chat-send').click(function() {
+			console.log();
+			sendGroupChatMessage($(this));
+	    	var id = $(this).closest('.input-group').find('.btn-chat-send').attr("data-chat-id");
+	    	scrollToBottom(id);
 		});
 		$('.chat_input').keypress(function(e) {
 		    if(e.which == 13) {
@@ -119,18 +162,26 @@ var chatsocket = function() {
 		$('#contactList').find('.group_chat_list_entry').click(function() {
 			var chatId = $(this).attr('data-chat-id');
 			var chatName = $(this).attr('data-chat-name');
-			createNewGroupChatBox(chatId, chatName, 'receipients');
+			createNewGroupChatBox(chatId, chatName);
 			var id = getChatWindowId(getElementIdSuffix(chatId));
 			$('#'+id).find('.chat_input').focus();
 		});
 
-		$('.chat_input').focus(function() {			
+		$('.personal_chat_window').find('.chat_input').focus(function() {			
 	    	var to = $(this).closest('.input-group').find('.btn-chat-send').attr("data-id-email");
 	    	var notificationId = getChatUserNotificationId(getElementIdSuffix(to));
 	    	if($('#'+notificationId).text() != '0') {
 	    		markMessagesAsRead(to);
 	    	}
 		});	
+		$('.group_chat_window').find('.chat_input').focus(function() {			
+	    	var chatId = $(this).closest('.input-group').find('.btn-chat-send').attr("data-chat-id");
+	    	var notificationId = getChatUserNotificationId(getElementIdSuffix(chatId));
+	    	if($('#'+notificationId).text() != '0') {
+	    		markGroupChatMessagesAsRead(chatId);
+	    	}
+		});	
+
 		$('#newGroupChat').click(function() {
 			createNewGroupChat();
 		});				

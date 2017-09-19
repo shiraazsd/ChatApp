@@ -13,19 +13,19 @@ public interface GroupChatRepository extends CrudRepository<Message>{
 
 	int getTotalGroupChatCount() throws SQLException;
 
-	GroupChat findGroupChatById(Long chatId) throws SQLException;
+	GroupChat findGroupChatById(Long groupChatId) throws SQLException;
 
-	void addMemberToGroupChat(Long chatId, String member)
+	void addMemberToGroupChat(Long groupChatId, String member)
 			throws SQLException;
 
-	boolean checkGroupChatHasMember(Long chatId, String user)
+	boolean checkGroupChatHasMember(Long groupChatId, String user)
 			throws SQLException;
 
-	String update(Long chatId, String chatName) throws SQLException;
+	String update(Long groupChatId, String groupChatName) throws SQLException;
 
-	GroupChat findGroupChatByName(String chatName) throws SQLException;
+	GroupChat findGroupChatByName(String groupChatName) throws SQLException;
 
-	void removeMemberFromGroupChat(Long chatId, String member)
+	void removeMemberFromGroupChat(Long groupChatId, String member)
 			throws SQLException;
 
 	List<GroupChat> getGroupChatsForUser(String user) throws SQLException;
