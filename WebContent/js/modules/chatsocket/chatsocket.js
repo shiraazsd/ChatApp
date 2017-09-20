@@ -40,7 +40,7 @@ var chatsocket = function() {
 			var message = JSON.parse(event.data);
 			//Refresh the list since there is a user which is online/offline now
 			if(message.content == 'refreshContact') {
-				refreshContactList();
+				loadUserContactList();
 			} else {
 				var idSuffix;
 				var status;
@@ -49,10 +49,12 @@ var chatsocket = function() {
 					idSuffix = getElementIdSuffix(message.id);
 					status = createNewGroupChatBox(message.id, message.id);
 					id = message.id;
+					fetchAndPopulateGroupChatContactList()					
 				} else {
 					idSuffix = getElementIdSuffix(message.from);						
 					status = createNewChatBox(message.from);
 					id = message.from;
+					fetchAndPopulateUserContactList();					
 				}				
 				if(!status) {
 					var msg_panel_id = getMsgPanelId(idSuffix);			
@@ -177,7 +179,8 @@ var chatsocket = function() {
 		$('.group_chat_window').find('.chat_input').focus(function() {			
 	    	var chatId = $(this).closest('.input-group').find('.btn-chat-send').attr("data-chat-id");
 	    	var notificationId = getChatUserNotificationId(getElementIdSuffix(chatId));
-	    	if($('#'+notificationId).text() != '0') {
+	    	var count = $('#'+notificationId).text();
+	    	if($('#'+notificationId).text() != '0' && $('#'+notificationId).text() !='') {
 	    		markGroupChatMessagesAsRead(chatId);
 	    	}
 		});	

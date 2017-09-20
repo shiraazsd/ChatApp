@@ -242,6 +242,7 @@ public class ChatRestService {
 			response.setFrom(String.valueOf(groupChatId));
 			response.setTo(user);
 			response.setMessageList(result);
+			response.setGroupChatName(groupChatRepository.findGroupChatById(groupChatId).getName());
 		} catch (SQLException e) {
 			System.out.print("Unable to retrieve from:to messages");
 			// TODO Auto-generated catch block

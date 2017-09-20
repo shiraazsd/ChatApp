@@ -5,6 +5,8 @@ import java.util.List;
 public class ChatMessageResponseDto {
 	private String from;
 	private String to;
+	private String groupChatName;
+	
 	private List<MessageDto> messageList;
 	
 	public String getFrom() {
@@ -25,4 +27,12 @@ public class ChatMessageResponseDto {
 	public void setMessageList(List<MessageDto> messageList) {
 		this.messageList = messageList;
 	}	
+
+	public String getGroupChatName() {
+		return groupChatName;
+	}
+	public void setGroupChatName(String groupChatName) {
+		this.groupChatName = groupChatName;
+	}
+	
 }

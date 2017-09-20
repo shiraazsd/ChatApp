@@ -121,7 +121,7 @@ var populateChatHistory = function(toUser) {
 				 var fromUser = data.from;
 				 messageList = data.messageList;
 				 var idSuffix = getElementIdSuffix(toUser);
-			     hideLoader(getChatBoxLoaderId(idSuffix));
+				 hideLoader(getChatBoxLoaderId(idSuffix));
 				 if(messageList.length == 0)
 					 return;
 			   	 for(var i = 0; i < messageList.length; ++i) {
@@ -145,7 +145,8 @@ var populateGroupChatHistory = function(chatId) {
 				 var chatId = data.from;
 				 messageList = data.messageList;
 				 var idSuffix = getElementIdSuffix(chatId);
-			     hideLoader(getChatBoxLoaderId(idSuffix));
+				 $("#"+getChatWindowId(idSuffix)).find('.chat_box_heading_text').text(data.groupChatName);
+				 hideLoader(getChatBoxLoaderId(idSuffix));
 				 if(messageList.length == 0)
 					 return;
 			   	 for(var i = 0; i < messageList.length; ++i) {
@@ -203,7 +204,7 @@ var hideLoader = function(loaderDivId, targetDivIdList) {
 };
 
 var initializeSessionStorage = function() {
-	if(sessionStorage.getItem(OPEN_CHAT_USERS) == null) {
+	if(sessionStorage.getItem(OPEN_CHAT_USERS) == null || getLoggedInUser() == "") {
 		sessionStorage.setItem(OPEN_CHAT_USERS, JSON.stringify([]));
 	}
 };
@@ -245,10 +246,19 @@ var createOpenChatUsersChatBox = function() {
 		if(dataList[i].type == 'user') {
 			createNewChatBox(dataList[i].id);
 		} else {
-			createNewGroupChatBox(dataList[i].id, dataList[i].id);			
+			restoreGroupChatBox(dataList[i].id);			
 		}
 	}
 };
+
+
+var restoreGroupChatBox = function(chatId) {
+	var getGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getGroupChat?chatId=" + chatId; 
+	$.getJSON(getGroupChatApiUrl,
+			   function(data) {
+				createNewGroupChatBox(data.id, data.name);					
+	});		
+}
 
 var loadUserContactList = function() {
 	var loggedInUser = getLoggedInUser();
@@ -295,18 +305,25 @@ var populateUserContactList = function(data) {
 	chatsocket.initAction();	
 };
 
-var populateGroupChatContactList = function(data) {
-	$('#contactListContainer').empty();
-	var template = $("#group-chat-contact-entry-template").html();
-	var img = "https://cdn2.iconfinder.com/data/icons/people-groups/512/Group_Woman_2-512.png";
-	for(var i = 0; i < data.length; ++i) {
-		var idSuffix = getElementIdSuffix(data[i].id);
-		var params = { chat_list_id : getUserListEntryId(idSuffix), chat_id : data[i].id, chat_name : data[i].name, group_pic : img, list_chat_notification_id : getListUserNotificationId(idSuffix)};
-		var html = Mustache.render(template, params);						
-		$('#contactListContainer').append(html);
-		setUserNotificationCount(data[i].id, data[i].notification);	
+var populateGroupChatContactList = function(data) {	
+	var type = $('#userListCategory').attr("data-current-selection");
+	if(type == '4') {
+		$('#contactListContainer').empty();
+		var template = $("#group-chat-contact-entry-template").html();
+		var img = "https://cdn2.iconfinder.com/data/icons/people-groups/512/Group_Woman_2-512.png";
+		for(var i = 0; i < data.length; ++i) {
+			var idSuffix = getElementIdSuffix(data[i].id);
+			var params = { chat_list_id : getUserListEntryId(idSuffix), chat_id : data[i].id, chat_name : data[i].name, group_pic : img, list_chat_notification_id : getListUserNotificationId(idSuffix)};
+			var html = Mustache.render(template, params);						
+			$('#contactListContainer').append(html);
+			setUserNotificationCount(data[i].id, data[i].notification);	
+		}
+		chatsocket.initAction();	
+	} else {
+		for(var i = 0; i < data.length; ++i) {
+			setUserNotificationCount(data[i].id, data[i].notification);	
+		}		
 	}
-	chatsocket.initAction();	
 };
 
 
@@ -363,8 +380,8 @@ var markMessagesAsRead = function(fromUser) {
 	var markReadMessagesApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/markMessagesAsRead?to=" + toUser + "&from=" + fromUser; 
 	$.getJSON(markReadMessagesApiUrl,
 			   function(data) {
-					loadUserContactList();
-		 	   });				
+					fetchAndPopulateUserContactList();
+		});				
 };
 
 var markGroupChatMessagesAsRead = function(chatId) {
@@ -372,8 +389,8 @@ var markGroupChatMessagesAsRead = function(chatId) {
 	var markGroupChatReadMessagesApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/markGroupChatMessagesAsRead?user=" + user + "&chatId=" + chatId; 
 	$.getJSON(markGroupChatReadMessagesApiUrl,
 			   function(data) {
-					loadUserContactList();
-		 	   });				
+				fetchAndPopulateGroupChatContactList();
+		});				
 };
 
 var updateNotification = function(fromUser) {
@@ -433,7 +450,7 @@ var createNewGroupChatBox = function(chatId, chatName) {
 	
 	$('#chatBoxContainer').append(html);
 	reArrangeChatBox();
-//	displayUserNotificationCount(getChatUserNotificationId(idSuffix), getCurrentUserListNotification(selectedUserEmail));	
+	displayUserNotificationCount(getChatUserNotificationId(idSuffix), getCurrentUserListNotification(chatId));	
 	populateGroupChatHistory(chatId);
 	chatsocket.initAction();
 	addToOpenChatUsers({id : chatId, type : 'chat'});

@@ -34,7 +34,6 @@ public class ChatEndPoint {
 	private Session session;
 	private String username;
 	private static final Set<ChatEndPoint> chatEndpoints = new CopyOnWriteArraySet<>();
-	private static HashMap<String, String> users = new HashMap<>();
 
 	@OnOpen
 	public void onOpen(Session session, @PathParam("username") String username) throws IOException, EncodeException {
@@ -42,7 +41,6 @@ public class ChatEndPoint {
 		this.session = session;
 		this.username = username;
 		chatEndpoints.add(this);
-		users.put(session.getId(), username);
 		broadcastRefreshContact();
 		System.out.println("Active endpoints count : " +  chatEndpoints.size());
 		System.out.println("Active endpoints : " +  chatEndpoints);		
@@ -52,7 +50,7 @@ public class ChatEndPoint {
 	public void onMessage(Session session, Message message) throws IOException, EncodeException {
 		log.info(message.toString());
 		System.out.println("onMessage : " + message.toString());
-		message.setFrom(users.get(session.getId()));
+		message.setFrom(getUser(session.getId()));
 		handleMessage(message);
 	}
 	
@@ -71,7 +69,12 @@ public class ChatEndPoint {
 	
 	private void removeSender(List<UserStatusDto> dtoList, String sender) {
 		UserStatusDto searchDto = new UserStatusDto(sender);
-		int index = Collections.binarySearch(dtoList, searchDto, new UserStatusDtoComparator());
+		int index = 0;
+		for(index = 0 ; index < dtoList.size(); ++index) {
+			if(dtoList.get(index).getUser().equals(sender)) {
+				break;				
+			}
+		}
 		dtoList.remove(index);
 	}
 	
@@ -80,6 +83,7 @@ public class ChatEndPoint {
 			Long groupChatId = Long.parseLong(message.getId());
 			List<UserStatusDto> userList = groupChatRepository.findGroupChatById(groupChatId).getMembers();
 			persistGroupChatMessage(groupChatId, message.getFrom(), message.getContent(), userList);
+			System.out.println("UserStatusDtoList : " + userList);
 			removeSender(userList, message.getFrom());
 			for(UserStatusDto dto : userList) {
 				Message m = new Message();
@@ -125,6 +129,7 @@ public class ChatEndPoint {
 	@OnError
 	public void onError(Session session, Throwable throwable) throws IOException, EncodeException {
 		broadcastRefreshContact();
+		throwable.printStackTrace();
 		log.warning(throwable.toString());
 	}
 
@@ -143,21 +148,30 @@ public class ChatEndPoint {
 	}
 
 	private static void sendMessageToOneUser(Message message) throws IOException, EncodeException {
+		System.out.println("Active Endpoint" + chatEndpoints);		
 		for (ChatEndPoint endpoint : chatEndpoints) {
 			synchronized (endpoint) {
 				if (endpoint.session.getId().equals(getSessionId(message.getTo()))) {
+					System.out.println(" Sending to : " + message.getTo() + " Content : " + message.getContent());
 					endpoint.session.getBasicRemote().sendObject(message);
 				}
 			}
 		}
 	}
 
-	private static String getSessionId(String to) {
-		if (users.containsValue(to)) {
-			for (String sessionId : users.keySet()) {
-				if (users.get(sessionId).equals(to)) {
-					return sessionId;
-				}
+	private static String getSessionId(String user) {
+		for(ChatEndPoint endpoint : chatEndpoints) {
+			if(endpoint.username.equals(user)) {
+				return endpoint.session.getId();
+			}
+		}
+		return null;
+	}
+
+	private String getUser(String sessionId) {		
+		for(ChatEndPoint endpoint : chatEndpoints) {
+			if(endpoint.session.getId().equals(sessionId)) {
+				return endpoint.username;
 			}
 		}
 		return null;
@@ -176,5 +190,5 @@ public class ChatEndPoint {
 		return "ChatEndPoint [session=" + session + ", username=" + username
 				+ "]";
 	}
-	
+		
 }
