@@ -307,3 +307,8 @@ border: 6px solid #f3f3f3;
   width: 200px;
   margin: auto;
 }
+.msg_receive sup {
+  color: royalblue;
+  font-style: italic;
+  font-size: 11px;
+}

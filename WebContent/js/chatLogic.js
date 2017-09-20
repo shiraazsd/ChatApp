@@ -153,7 +153,7 @@ var populateGroupChatHistory = function(chatId) {
 			   		 if(messageList[i].from == loggedInUser) {
 			   			appendSendMessageToChat(idSuffix, messageList[i].content);
 			   		 } else{
-			   			appendReceiveMessageToChat(idSuffix, messageList[i].content);			   			 
+			   			appendReceiveMessageToGroupChat(idSuffix, messageList[i].content, messageList[i].from);			   			 
 			   		 }
 			   	 }
 			 	scrollToBottom(chatId);
@@ -168,6 +168,12 @@ var appendReceiveMessageToChat = function(idSuffix, content) {
 	var msg_panel_id = getMsgPanelId(idSuffix);			
 	$("#"+msg_panel_id).append(messageReceive(content));	
 };
+
+var appendReceiveMessageToGroupChat = function(idSuffix, content, from) {
+	var msg_panel_id = getMsgPanelId(idSuffix);			
+	$("#"+msg_panel_id).append(groupChatMessageReceive(content, from));	
+};
+
 
 var appendSendMessageToChat = function(idSuffix, content) {
 	var msg_panel_id = getMsgPanelId(idSuffix);			
@@ -194,6 +200,19 @@ var messageReceive = function(message) {
 	
 	var buildMessage = "<div class='col-md-10 col-xs-10'> "
 		+ "<div class='messages msg_receive'>" + "<p>" + message + "</p>"
+		+ "<time datetime='2009-11-13T20:00'>Timothy • 51 min</time>"
+		+ "</div>" + "</div>" + "</div>";
+	return imgMessage + buildMessage;
+};
+
+var groupChatMessageReceive = function(message, from) {
+	var imgMessage = "<div class='row msg_container base_receive'>" +
+			"<div  class='col-md-2 col-xs-2 avatar'>"
+			+ "<img src='http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg'class='img-responsive ' />"
+			+ "</div>";
+	
+	var buildMessage = "<div class='col-md-10 col-xs-10'> "
+		+ "<div class='messages msg_receive'>" + "<sup>" + from + "</sup>" + "<p>" + message + "</p>"
 		+ "<time datetime='2009-11-13T20:00'>Timothy • 51 min</time>"
 		+ "</div>" + "</div>" + "</div>";
 	return imgMessage + buildMessage;
@@ -229,7 +248,6 @@ var removeFromOpenChatUsers = function(user) {
 			break;
 		}
 	}
-	--index
 	if (index > -1) {
 	    userList.splice(index, 1);
 	}

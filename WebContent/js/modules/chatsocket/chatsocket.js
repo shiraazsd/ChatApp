@@ -58,8 +58,13 @@ var chatsocket = function() {
 				}				
 				if(!status) {
 					var msg_panel_id = getMsgPanelId(idSuffix);			
-					$("#"+msg_panel_id).append(messageReceive(message.content));
-				}
+					if(message.isGroupChat) {
+						$("#"+msg_panel_id).append(groupChatMessageReceive(message.content, message.from));
+					} else {
+						$("#"+msg_panel_id).append(messageReceive(message.content));						
+					}
+					
+					}
 		    	scrollToBottom(id);
 				updateNotification(id);
 			}
