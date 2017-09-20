@@ -187,6 +187,36 @@ public class ChatRestService {
 	}
 
 	@GET
+	@Path("/clearGroupChatHistory")
+	@Produces(MediaType.APPLICATION_JSON)
+	public int clearGroupChatHistory(@QueryParam("chatId") final Long groupChatId, @QueryParam("loggedInUser") final String loggedInUser) {
+		try {
+			List<Message> messageList = messageRepository.getLastFewMessagesForGroupChat(loggedInUser, groupChatId, -1);
+			List<Long> idList = new ArrayList<Long>();
+			for(Message message : messageList) {
+				idList.add(message.getId());
+			}
+			messageRepository.deleteMessages(idList);
+		} catch (SQLException e) {
+			System.out.println("Unable to update message status to Read");
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
+	@GET
+	@Path("/leaveGroupChat")
+	@Produces(MediaType.APPLICATION_JSON)
+	public void leaveGroupChat(@QueryParam("chatId") final Long groupChatId, @QueryParam("loggedInUser") final String loggedInUser) {
+		try {
+			groupChatRepository.removeMemberFromGroupChat(groupChatId, loggedInUser);
+		} catch (SQLException e) {
+			System.out.println("Unable to leave group chat");
+			e.printStackTrace();
+		}
+	}
+	
+	@GET
 	@Path("/getAvailableUsers")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<UserStatusDto> getAvailableUsers(@QueryParam("chatId") final Long groupChatId) {

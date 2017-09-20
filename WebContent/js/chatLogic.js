@@ -430,6 +430,23 @@ var updateGroupChat = function(chatId, chatNameNew) {
 	});	
 };
 
+var clearGroupChatHistory = function(chatId) {
+	var loggedInUser = getLoggedInUser();
+	var clearGroupChatHistoryApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/clearGroupChatHistory?chatId=" + chatId + "&loggedInUser=" + loggedInUser; 
+	$.getJSON(clearGroupChatHistoryApiUrl,
+			   function(data) {
+				loadUserContactList();			
+	});	
+};
+
+var leaveGroupChatHistory = function(chatId) {
+	var loggedInUser = getLoggedInUser();
+	var leaveGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/leaveGroupChat?chatId=" + chatId + "&loggedInUser=" + loggedInUser; 
+	$.getJSON(leaveGroupChatApiUrl,
+			   function(data) {
+				loadUserContactList();			
+	});	
+};
 
 var createNewGroupChatBox = function(chatId, chatName) {
 	var template = $("#group-chat-window-template").html();
@@ -527,3 +544,8 @@ var hasAttribute = function(element, attribute) {
 	}
 	return false;
 };
+
+var closeGroupChatWindow = function(chatId) {
+	var chatWindowId = getChatWindowId(chatId);
+	$('#'+chatWindowId).find('.icon_close').click();
+}

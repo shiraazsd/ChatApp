@@ -186,7 +186,9 @@ Author: Prasanna Bhale
 
 	<script type="text/template" id="group-chat-contact-entry-template">
                   <li id="{{chat_list_id}}" data-chat-id="{{chat_id}}" data-chat-name="{{chat_name}}" class="clearfix group_chat_list_entry">
-                     <span class="chat-img pull-left">
+                    <div class="row">
+					<span class="col-md-11 chat_box_open_class">
+					 <span class="chat-img pull-left">
                      <img src="{{group_pic}}" alt="User Avatar" class="img-circle"></img>
                      </span>
                      <div class="chat-body clearfix">
@@ -195,7 +197,13 @@ Author: Prasanna Bhale
 							<span id="{{list_chat_notification_id}}" class="badge notification pull-right"></span>
                         </div>
                      </div>
-                  </li>
+					</span>
+					<span class="option_open_class">
+					<a href="#" class="group_chat_option_popover_class" placement="auto left" title="Popover Header" data-content="Some content inside the popover"></a>
+					<span class="fa fa-cog group_chat_option_class" aria-hidden="true"></span>
+    				</span>
+					</div>              
+	</li>
 	</script>			
 
 	<script type="text/template" id="group-user-contact-entry-template">
@@ -258,5 +266,25 @@ Author: Prasanna Bhale
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="groupChatOption" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-group-chat-option" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="groupChatOptionTitle">Select Option</h4>
+      </div>
+      <div class="modal-body">
+            <div >
+            <button id="clearGroupChat" type="button" class="btn btn-default"><i class="fa fa-eraser" aria-hidden="true"></i>Clear Chat History</button>
+            <button id="leaveGroupChat" type="button" class="btn btn-default"><i class="fa fa-ban" aria-hidden="true"></i>Leave Group Chat</button>
+            </div>
+                  
+      	</div>
+      </div>
+    </div>
+</div>
+
+
 </h:body>
 </html>

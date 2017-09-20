@@ -36,4 +36,6 @@ public interface MessageRepository extends CrudRepository<Message>{
 
 	int markAllMessagesAsReadInGroupChat(String user, Long groupChatId)
 			throws SQLException;
+
+	int deleteMessages(List<Long> idList) throws SQLException;
 }

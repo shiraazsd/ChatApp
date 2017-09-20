@@ -296,7 +296,8 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 	public List<Message> getLastFewMessagesForGroupChat(String user, Long groupChatId, int limit) throws SQLException {		
 		try {
 			sql = "select id_message, id_team, fu.id_user as from_id, tu.id_user as to_id, fu.email as from_email, tu.email as to_email, content, status_message from message m " +
-				  " inner join user fu on m.id_user_from = fu.id_user inner join user tu on m.id_user = tu.id_user where ((fu.email = ':user' and tu.email = ':user') or (fu.email <> ':user' and tu.email = ':user')) and groupchat_id = :group_chat_id order by id_message desc limit :limit";			
+				  " inner join user fu on m.id_user_from = fu.id_user inner join user tu on m.id_user = tu.id_user where ((fu.email = ':user' and tu.email = ':user') or (fu.email <> ':user' and tu.email = ':user')) and groupchat_id = :group_chat_id order by id_message desc ";
+			sql += limit != -1 ? "limit :limit" : "";
 			Map<String, Object> parameters = new HashMap<>();
 			parameters.put(":user", user);
 			parameters.put(":group_chat_id", groupChatId);
@@ -383,6 +384,28 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 			closeConections();
 		}
 	}
+	
+	@Override
+	public int deleteMessages(List<Long> idList) throws SQLException {
+		StringBuilder builder = new StringBuilder();
+		try {
+			sql = "delete from message where id_message in (%s)";
+			for( Long id : idList) {
+			    builder.append(id+",");
+			}			
+			String inClause = builder.deleteCharAt( builder.length() -1 ).toString();
+			sql = String.format(sql, inClause);			
+			Map<Integer, Object> parameters = new HashMap<>();
+			int count = executeUpdate(sql, parameters);
+			return count;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SQLException("Cannot delete message");
+		}  finally {
+			closeConections();
+		}
+	}
+	
 	
 	@Override
 	public int updateMessageStatusToRead(String fromUser, String toUser) {
