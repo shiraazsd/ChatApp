@@ -209,6 +209,7 @@ public class ChatRestService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public void leaveGroupChat(@QueryParam("chatId") final Long groupChatId, @QueryParam("loggedInUser") final String loggedInUser) {
 		try {
+			clearGroupChatHistory(groupChatId, loggedInUser);
 			groupChatRepository.removeMemberFromGroupChat(groupChatId, loggedInUser);
 		} catch (SQLException e) {
 			System.out.println("Unable to leave group chat");

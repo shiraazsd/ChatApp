@@ -29,10 +29,11 @@ $(document).on('click', '.icon_close', function (e) {
 	var chatWindow = $(this).attr("data-id");
 	var user = $("#"+chatWindow).find('.panel-title').text().trim();
 	var data;
-	if($(this).closest('.personal_chat_window').length != 0) {
+	if($(this).closest('.personal_chat_window').length != 0) {		
 		data = {id : user, type : 'user'}
 	} else {
-		data = {id : user, type : 'chat'}		
+		var chatId = $(this).closest('.group_chat_window').attr('data-chat-id');
+		data = {id : chatId, type : 'chat'}		
 	}
 	removeFromOpenChatUsers(data);
     $("#"+chatWindow).remove();
