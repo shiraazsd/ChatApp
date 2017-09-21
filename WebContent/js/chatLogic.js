@@ -126,9 +126,9 @@ var populateChatHistory = function(toUser) {
 					 return;
 			   	 for(var i = 0; i < messageList.length; ++i) {
 			   		 if(messageList[i].from == fromUser) {
-			   			appendSendMessageToChat(idSuffix, messageList[i].content);
+			   			appendSendMessageToChat(idSuffix, messageList[i].content, messageList[i].messageTime);
 			   		 } else{
-			   			appendReceiveMessageToChat(idSuffix, messageList[i].content);			   			 
+			   			appendReceiveMessageToChat(idSuffix, messageList[i].content, messageList[i].messageTime);			   			 
 			   		 }
 			   	 }
 			 	scrollToBottom(toUser);
@@ -151,9 +151,9 @@ var populateGroupChatHistory = function(chatId) {
 					 return;
 			   	 for(var i = 0; i < messageList.length; ++i) {
 			   		 if(messageList[i].from == loggedInUser) {
-			   			appendSendMessageToChat(idSuffix, messageList[i].content);
+			   			appendSendMessageToChat(idSuffix, messageList[i].content, messageList[i].messageTime);
 			   		 } else{
-			   			appendReceiveMessageToGroupChat(idSuffix, messageList[i].content, messageList[i].from);			   			 
+			   			appendReceiveMessageToGroupChat(idSuffix, messageList[i].content, messageList[i].from, messageList[i].messageTime);			   			 
 			   		 }
 			   	 }
 			 	scrollToBottom(chatId);
@@ -164,27 +164,27 @@ var populateGroupChatHistory = function(chatId) {
 var getLoggedInUser = function() {
 	return user = $("#loggedInUser").text();
 }
-var appendReceiveMessageToChat = function(idSuffix, content) {
+var appendReceiveMessageToChat = function(idSuffix, content, time) {
 	var msg_panel_id = getMsgPanelId(idSuffix);			
-	$("#"+msg_panel_id).append(messageReceive(content));	
+	$("#"+msg_panel_id).append(messageReceive(content, time));	
 };
 
-var appendReceiveMessageToGroupChat = function(idSuffix, content, from) {
+var appendReceiveMessageToGroupChat = function(idSuffix, content, from, time) {
 	var msg_panel_id = getMsgPanelId(idSuffix);			
-	$("#"+msg_panel_id).append(groupChatMessageReceive(content, from));	
+	$("#"+msg_panel_id).append(groupChatMessageReceive(content, from, time));	
 };
 
 
-var appendSendMessageToChat = function(idSuffix, content) {
+var appendSendMessageToChat = function(idSuffix, content, time) {
 	var msg_panel_id = getMsgPanelId(idSuffix);			
-	$("#"+msg_panel_id).append(messageSend(content));	
+	$("#"+msg_panel_id).append(messageSend(content, time));	
 };
 
-var messageSend = function(message) {
+var messageSend = function(message, time) {
 	var buildMessage = "<div class='row msg_container base_sent'>"
 			+ "<div class='col-md-10 col-xs-10'> "
 			+ "<div class='messages msg_sent'>" + "<p>" + message + "</p>"
-			+ "<time datetime='2009-11-13T20:00'>Timothy • 51 min</time>"
+			+ "<time>" + time + "</time>"
 			+ "</div>" + "</div>" + "";
 	var imgMessage = "<div  class='col-md-2 col-xs-2 avatar'>"
 			+ "<img src='http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg'class='img-responsive ' />"
@@ -192,7 +192,7 @@ var messageSend = function(message) {
 	return buildMessage + imgMessage;
 };
 
-var messageReceive = function(message) {
+var messageReceive = function(message, time) {
 	var imgMessage = "<div class='row msg_container base_receive'>" +
 			"<div  class='col-md-2 col-xs-2 avatar'>"
 			+ "<img src='http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg'class='img-responsive ' />"
@@ -200,12 +200,12 @@ var messageReceive = function(message) {
 	
 	var buildMessage = "<div class='col-md-10 col-xs-10'> "
 		+ "<div class='messages msg_receive'>" + "<p>" + message + "</p>"
-		+ "<time datetime='2009-11-13T20:00'>Timothy • 51 min</time>"
+		+ "<time>" + time + "</time>"
 		+ "</div>" + "</div>" + "</div>";
 	return imgMessage + buildMessage;
 };
 
-var groupChatMessageReceive = function(message, from) {
+var groupChatMessageReceive = function(message, from, time) {
 	var imgMessage = "<div class='row msg_container base_receive'>" +
 			"<div  class='col-md-2 col-xs-2 avatar'>"
 			+ "<img src='http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg'class='img-responsive ' />"
@@ -213,7 +213,7 @@ var groupChatMessageReceive = function(message, from) {
 	
 	var buildMessage = "<div class='col-md-10 col-xs-10'> "
 		+ "<div class='messages msg_receive'>" + "<sup>" + from + "</sup>" + "<p>" + message + "</p>"
-		+ "<time datetime='2009-11-13T20:00'>Timothy • 51 min</time>"
+		+ "<time>" + time + "</time>"
 		+ "</div>" + "</div>" + "</div>";
 	return imgMessage + buildMessage;
 };
@@ -566,4 +566,9 @@ var hasAttribute = function(element, attribute) {
 var closeGroupChatWindow = function(chatId) {
 	var chatWindowId = getChatWindowId(chatId);
 	$('#'+chatWindowId).find('.icon_close').click();
+};
+
+
+var getCurrentTime = function() {
+	return moment().format("YYYY-MM-DD HH:mm:ss");	
 }

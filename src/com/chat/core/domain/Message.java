@@ -37,11 +37,20 @@ public class Message extends Auditory implements Serializable {
 	 */
 	private GroupChat groupChat;
 	
+	private String messageTime;
 	
 	public Message() {
 		super();
 	}
 
+	public String getMessageTime() {
+		return messageTime;
+	}
+
+	public void setMessageTime(String messageTime) {
+		this.messageTime = messageTime;
+	}
+	
 	public String getDescriptionMessage() {
 		return descriptionMessage;
 	}

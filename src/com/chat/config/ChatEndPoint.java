@@ -1,6 +1,7 @@
 package com.chat.config;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,9 @@ import com.chat.core.repository.impl.GroupChatRepositoryImpl;
 import com.chat.core.repository.impl.MessageRepositoryImpl;
 import com.chat.core.util.Constants;
 import com.chat.core.util.UserStatusDtoComparator;
+import com.chat.core.util.Util;
 import com.chat.dto.UserStatusDto;
+import com.chat.rest.DtoUtil;
 
 @ServerEndpoint(value = "/chat/{username}", decoders = MessageDecoder.class, encoders = MessageEncoder.class)
 public class ChatEndPoint {
@@ -148,6 +151,7 @@ public class ChatEndPoint {
 	}
 
 	private static void sendMessageToOneUser(Message message) throws IOException, EncodeException {
+		populateMessageTime(message);
 		System.out.println("Active Endpoint" + chatEndpoints);		
 		for (ChatEndPoint endpoint : chatEndpoints) {
 			synchronized (endpoint) {
@@ -157,6 +161,10 @@ public class ChatEndPoint {
 				}
 			}
 		}
+	}
+	
+	private static void populateMessageTime(Message message) {		
+		message.setMessageTime(Util.formatDateTime(LocalDateTime.now()));
 	}
 
 	private static String getSessionId(String user) {

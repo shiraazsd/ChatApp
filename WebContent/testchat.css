@@ -55,7 +55,7 @@ body{
   }
 .messages > time {
     font-size: 11px;
-    color: #ccc;
+	color : cadetblue;
 }
 .msg_container {
     padding: 10px;

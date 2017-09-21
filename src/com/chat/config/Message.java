@@ -7,12 +7,21 @@ public class Message {
 	private String content;
 	private String id;
 	private boolean isGroupChat;
+	private String messageTime;
 	
 	@Override
 	public String toString() {
 		return super.toString();
 	}
 
+	public String getMessageTime() {
+		return messageTime;
+	}
+
+	public void setMessageTime(String messageTime) {
+		this.messageTime = messageTime;
+	}
+	
 	public boolean isGroupChat() {
 		return isGroupChat;
 	}

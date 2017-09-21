@@ -19,6 +19,7 @@ import com.chat.core.repository.GroupChatRepository;
 import com.chat.core.repository.MessageRepository;
 import com.chat.core.repository.UserRepository;
 import com.chat.core.util.Constants;
+import com.chat.core.util.Util;
 import com.chat.dto.UserStatusDto;
 
 public class MessageRepositoryImpl extends Dao implements MessageRepository {
@@ -212,6 +213,7 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 			message.getGroupChat().setId(rs.getLong("id_team"));
 			message.setStatusMesage(Boolean.valueOf(rs.getString("status_message")));
 			message.setDescriptionMessage(rs.getString("content"));
+			message.setMessageTime(Util.formatDateTime(rs.getTimestamp("message_time").toLocalDateTime()));
 			return message;
 		} catch (Exception e) {
 			LOGGER.error("fail to the getFullUserByRs", e);
@@ -276,7 +278,7 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 	@Override
 	public List<Message> getLastFewMessages(String fromUser, String toUser, int limit) throws SQLException {		
 		try {
-			sql = "select id_message, id_team, fu.id_user as from_id, tu.id_user as to_id, fu.email as from_email, tu.email as to_email, content, status_message from message m " +
+			sql = "select id_message, id_team, fu.id_user as from_id, tu.id_user as to_id, fu.email as from_email, tu.email as to_email, content, status_message, m.message_time from message m " +
 				  " inner join user fu on m.id_user_from = fu.id_user inner join user tu on m.id_user = tu.id_user where ((tu.email = ':user_to' and fu.email = ':user_from') or (fu.email = ':user_to' and tu.email = ':user_from')) and m.groupchat_id IS NULL order by id_message desc limit :limit";			
 			Map<String, Object> parameters = new HashMap<>();
 			parameters.put(":user_to", toUser);
@@ -295,7 +297,7 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 	@Override
 	public List<Message> getLastFewMessagesForGroupChat(String user, Long groupChatId, int limit) throws SQLException {		
 		try {
-			sql = "select id_message, id_team, fu.id_user as from_id, tu.id_user as to_id, fu.email as from_email, tu.email as to_email, content, status_message from message m " +
+			sql = "select id_message, id_team, fu.id_user as from_id, tu.id_user as to_id, fu.email as from_email, tu.email as to_email, content, status_message, m.message_time from message m " +
 				  " inner join user fu on m.id_user_from = fu.id_user inner join user tu on m.id_user = tu.id_user where ((fu.email = ':user' and tu.email = ':user') or (fu.email <> ':user' and tu.email = ':user')) and groupchat_id = :group_chat_id order by id_message desc ";
 			sql += limit != -1 ? "limit :limit" : "";
 			Map<String, Object> parameters = new HashMap<>();

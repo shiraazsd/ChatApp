@@ -36,7 +36,7 @@ public class DtoUtil {
 	public List<MessageDto> convertIntoDto(List<Message> messageList) {
 		List<MessageDto> dtoList = new ArrayList<MessageDto>();
 		for(Message message : messageList) {
-			dtoList.add(0, new MessageDto(message.getUserFrom().getEmail(), message.getUserTo().getEmail(), message.getDescriptionMessage()));
+			dtoList.add(0, new MessageDto(message.getUserFrom().getEmail(), message.getUserTo().getEmail(), message.getDescriptionMessage(), message.getMessageTime()));
 		}
 		return dtoList;
 	}

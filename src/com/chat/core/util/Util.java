@@ -1,5 +1,7 @@
 package com.chat.core.util;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
 public class Util {
@@ -16,6 +18,11 @@ public class Util {
 			return false;
 		}
 		return true;
+	}
+	
+	public static String formatDateTime(LocalDateTime time) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");	
+		return time.format(formatter);		
 	}
 
 }
