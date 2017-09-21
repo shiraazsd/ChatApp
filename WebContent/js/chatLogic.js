@@ -437,6 +437,8 @@ var createNewGroupChat = function() {
 	$.getJSON(createNewGroupChatApiUrl,
 			   function(data) {
 					createNewGroupChatBox(data.id, data.name);	
+					var id = getChatWindowId(getElementIdSuffix(data.id));
+					$('#'+id).find('.chat_input').focus();					
 	});	
 };
 
