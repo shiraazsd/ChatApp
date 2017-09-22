@@ -196,7 +196,9 @@ public class ChatRestService {
 			for(Message message : messageList) {
 				idList.add(message.getId());
 			}
-			messageRepository.deleteMessages(idList);
+			if(!idList.isEmpty()) {
+				messageRepository.deleteMessages(idList);
+			}
 		} catch (SQLException e) {
 			System.out.println("Unable to update message status to Read");
 			e.printStackTrace();

@@ -389,6 +389,8 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 	
 	@Override
 	public int deleteMessages(List<Long> idList) throws SQLException {
+		if(idList.isEmpty())
+			return -1;
 		StringBuilder builder = new StringBuilder();
 		try {
 			sql = "delete from message where id_message in (%s)";
