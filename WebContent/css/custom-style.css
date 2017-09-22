@@ -141,7 +141,7 @@ border: 6px solid #f3f3f3;
    border-bottom:none;
    }
    .member_list {
-   height: 86.5vh;
+   height: 76.5vh;
    overflow-x: hidden;
    overflow-y: auto;
    border-left:1px solid lightgrey;   
@@ -185,7 +185,7 @@ border: 6px solid #f3f3f3;
 }
 .chat_area {
   float: left;
-  height: 100%;
+  height: 79vh;
   overflow-x: hidden;
   overflow-y: auto;
   width: 100%;
@@ -311,4 +311,11 @@ border: 6px solid #f3f3f3;
   color: royalblue;
   font-style: italic;
   font-size: 11px;
+}
+.list-unstyled {
+  display : grid;
+}
+.message_style {
+  font-size: 11px;
+  color: cadetblue;	
 }

@@ -85,6 +85,31 @@ var closeFirstChatBox = function() {
 }
 
 
+
+var performContactListUserClickActionOnContext = function(user) {
+	if(isChatContext()) {
+		createNewChatBox(user);
+		var id = getChatWindowId(getElementIdSuffix(user));
+		$('#'+id).find('.chat_input').focus();		
+	} else {
+		setInboxChatUser(user);		
+		populateInboxChatHistory(user);		
+	}
+};
+
+var performGroupChatListClickActionOnContext = function(chatId, chatName) {
+	if(isChatContext()) {
+		createNewGroupChatBox(chatId, chatName);
+		var id = getChatWindowId(getElementIdSuffix(chatId));
+		$('#'+id).find('.chat_input').focus();	
+	} else {
+		setInboxGroupChat(chatId);
+		populateGroupChatInboxHistory(chatId);		
+	}
+};
+
+
+
 var createNewChatBox = function(selectedUserEmail) {
 	var template = $("#chat-window-template").html();
 	var idSuffix = getElementIdSuffix(selectedUserEmail);
@@ -135,6 +160,89 @@ var populateChatHistory = function(toUser) {
 		 	   });		
 };
 
+var clearInboxChatContainer = function() {
+	$('#inboxChatContainer').empty();
+}
+
+var setInboxChatUser = function(user) {
+	$('#inboxChatContainer').attr('data-email-id', user);
+	$('#inboxChatContainer').removeAttr('data-chat-id');
+};
+
+var getInboxChatUser = function() {
+	return 	$('#inboxChatContainer').attr('data-email-id');
+};
+
+var getInboxGroupChatId = function() {
+	return 	$('#inboxChatContainer').attr('data-chat-id');
+};
+
+var isInboxGroupChatSet = function() {
+	if(hasAttribute('#inboxChatContainer', 'data-chat-id'))
+		return true;
+	return false;
+};
+
+var setInboxGroupChat = function(chatId) {
+	$('#inboxChatContainer').removeAttr('data-email-id', user);
+	$('#inboxChatContainer').attr('data-chat-id', chatId);
+};
+
+var appendToInboxChatContainer = function(child) {
+	$('#inboxChatContainer').append(child);
+}
+
+var populateInboxChatHistory = function(toUser) {
+	var fromUser = getLoggedInUser();
+	var chatMessageHistoryApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/chatMessages?from=" + fromUser + "&to=" + toUser; 
+	$.getJSON(chatMessageHistoryApiUrl,
+			   function(data) {
+				 var toUser = data.to;
+				 var fromUser = data.from;
+				 messageList = data.messageList;
+				 clearInboxChatContainer();
+				 
+				 if(messageList.length == 0)
+					 return;
+				 var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";				 
+			   	 for(var i = 0; i < messageList.length; ++i) {
+			   		 if(messageList[i].from == fromUser) {
+			   			appendSendMessageToInboxChat(img, messageList[i].content, messageList[i].messageTime);
+			   		 } else{
+			   			appendReceiveMessageToInboxChat(img, messageList[i].content, messageList[i].messageTime);			   			 
+			   		 }
+			   	 }
+				scrollToInboxBottom();
+		    	$('#inputMessageContent').focus();	    					
+		 	   });		
+};
+
+var populateGroupChatInboxHistory = function(chatId) {
+	var loggedInUser = getLoggedInUser();
+	var groupChatMessageHistoryApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/groupChatMessages?user=" + loggedInUser + "&chatId=" + chatId; 
+	$.getJSON(groupChatMessageHistoryApiUrl,
+			   function(data) {
+				 var loggedInUser = getLoggedInUser();
+				 var chatId = data.from;
+				 messageList = data.messageList;
+				 clearInboxChatContainer();
+
+				 if(messageList.length == 0)
+					 return;
+				 var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";				 
+
+				 for(var i = 0; i < messageList.length; ++i) {
+			   		 if(messageList[i].from == loggedInUser) {
+			   			appendSendMessageToInboxChat(img, messageList[i].content, messageList[i].messageTime);
+			   		 } else{
+			   			appendReceiveMessageToInboxChat(img, messageList[i].content, messageList[i].messageTime);			   			 
+			   		 }
+			   	 }
+				scrollToInboxBottom();
+		    	$('#inputMessageContent').focus();	    					
+		 	   });		
+};
+
 
 var populateGroupChatHistory = function(chatId) {
 	var loggedInUser = getLoggedInUser();
@@ -162,8 +270,17 @@ var populateGroupChatHistory = function(chatId) {
 
 
 var getLoggedInUser = function() {
-	return user = $("#loggedInUser").text();
-}
+	return user = $("#user").attr('value');
+};
+
+var getPageContext = function() {
+	return user = $("#pageContext").attr('value');
+};
+
+var isChatContext = function() {
+	return getPageContext() != 'INBOX';
+};
+
 var appendReceiveMessageToChat = function(idSuffix, content, time) {
 	var msg_panel_id = getMsgPanelId(idSuffix);			
 	$("#"+msg_panel_id).append(messageReceive(content, time));	
@@ -174,6 +291,20 @@ var appendReceiveMessageToGroupChat = function(idSuffix, content, from, time) {
 	$("#"+msg_panel_id).append(groupChatMessageReceive(content, from, time));	
 };
 
+
+var appendSendMessageToInboxChat = function(pic, message_content, time) {
+	var template = $("#inbox_message_send").html();
+	var data = { img : pic, content : message_content, message_time : time};		
+	var html = Mustache.render(template, data);		
+	appendToInboxChatContainer(html);	
+};
+
+var appendReceiveMessageToInboxChat = function(pic, message_content, time) {
+	var template = $("#inbox_message_receive").html();
+	var data = { img : pic, content : message_content, message_time : time};		
+	var html = Mustache.render(template, data);		
+	appendToInboxChatContainer(html);	
+};
 
 var appendSendMessageToChat = function(idSuffix, content, time) {
 	var msg_panel_id = getMsgPanelId(idSuffix);			
@@ -217,6 +348,15 @@ var groupChatMessageReceive = function(message, from, time) {
 		+ "</div>" + "</div>" + "</div>";
 	return imgMessage + buildMessage;
 };
+
+var inboxMessageSend = function() {
+	
+};
+
+var inboxMessageReceive = function() {	
+	
+}
+
 
 var hideLoader = function(loaderDivId, targetDivIdList) {
 	$('#'+loaderDivId).css('display', 'none');	
@@ -430,7 +570,12 @@ var scrollToBottom = function(to) {
 	var panel = $('#'+getMsgPanelId(getElementIdSuffix(to)));
 	panel.scrollTop(panel.prop("scrollHeight"));	
 };
-	
+
+var scrollToInboxBottom = function() {
+	var panel = $('.chat_area');
+	panel.scrollTop(panel.prop("scrollHeight"));	
+};
+
 var createNewGroupChat = function() {
 	var loggedInUser = getLoggedInUser();
 	var createNewGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/createNewGroupChat?loggedInUser=" + loggedInUser; 

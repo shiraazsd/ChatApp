@@ -69,6 +69,40 @@ var chatsocket = function() {
 		$("#"+msg_panel_id).append(messageSend(content, getCurrentTime()));
 	};
 
+	var sendPersonalInboxMessage = function(user) {
+		var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";				 	
+		var messageElement;
+		var isGroupChat = isInboxGroupChatSet();		
+		//Validating the inputs
+		var content = $('#inputMessageContent').val();
+		//Reset the input fields
+		$('#inputMessageContent').val('');
+		if(!content) {
+			return;
+		}
+
+		if(isGroupChat) {
+			var chatId = getInboxGroupChatId();
+			var json = JSON.stringify({
+				"to" : null,
+				"content" : content,
+				"isGroupChat" : true,
+				"id" : chatId 
+			});
+			
+		} else {
+			var to = getInboxChatUser();
+			var json = JSON.stringify({
+				"to" : to,
+				"content" : content,
+				"isGroupChat" : false,
+				"id" : null 
+			});			
+		}
+		ws.send(json);
+		appendSendMessageToInboxChat(img, content, getCurrentTime());
+	};
+	
 	var sendGroupChatMessage = function(element) {
 		var inputElementId = element.attr("data-id");
 		var chatId = element.attr("data-chat-id");
@@ -110,13 +144,16 @@ var chatsocket = function() {
 		$('#groupChatUserSelection').find('i').unbind('click');
 		$('#contactList').find('.group_chat_list_entry').find('.option_open_class').unbind('click');
 		$('#clearGroupChat').unbind('click');
-		$('#leaveGroupChat').unbind('click');
-		
+		$('#leaveGroupChat').unbind('click');		
 		$('.personal_chat_window').find('.btn-chat-send').click(function() {
 			console.log();
 			sendPersonalMessage($(this));
 	    	var to = $(this).closest('.input-group').find('.btn-chat-send').attr("data-id-email");
 	    	scrollToBottom(to);
+		});
+		$('#btnSendMessage').click(function() {
+			sendPersonalInboxMessage($(this));
+			scrollToInboxBottom();			
 		});
 		$('.group_chat_window').find('.btn-chat-send').click(function() {
 			console.log();
@@ -124,11 +161,17 @@ var chatsocket = function() {
 	    	var id = $(this).closest('.input-group').find('.btn-chat-send').attr("data-chat-id");
 	    	scrollToBottom(id);
 		});
+		$('#inputMessageContent').keypress(function(e) {
+		    if(e.which == 13) {
+		    	$('#btnSendMessage').click();
+		    }
+		});	
 		$('.chat_input').keypress(function(e) {
 		    if(e.which == 13) {
 		    	$(this).closest('.input-group').find('.btn-chat-send').click();
 		    }
 		});	
+
 		$('#userListCategory').find('li').click(function() {
 			var type = $(this).attr("data-id");
 			$('#userListCategory').attr("data-current-selection", type);			
@@ -136,17 +179,13 @@ var chatsocket = function() {
 		});				
 		$('#contactList').find('.user_list_entry').click(function() {
 			var selectedUserEmail = $(this).attr('data-id-email');
-			createNewChatBox(selectedUserEmail);
-			var id = getChatWindowId(getElementIdSuffix(selectedUserEmail));
-			$('#'+id).find('.chat_input').focus();
+			performContactListUserClickActionOnContext(selectedUserEmail);
 		});
 		$('#contactList').find('.group_chat_list_entry').find('.chat_box_open_class').click(function() {
 			var el = $(this).closest('.group_chat_list_entry');
 			var chatId = el.attr('data-chat-id');
 			var chatName = el.attr('data-chat-name');
-			createNewGroupChatBox(chatId, chatName);
-			var id = getChatWindowId(getElementIdSuffix(chatId));
-			$('#'+id).find('.chat_input').focus();
+			performGroupChatListClickActionOnContext(chatId, chatName);
 		});
 
 		$('.personal_chat_window').find('.chat_input').focus(function() {			
@@ -156,6 +195,22 @@ var chatsocket = function() {
 	    		markMessagesAsRead(to);
 	    	}
 		});	
+		$('#inputMessageContent').focus(function() {			
+			if(isInboxGroupChatSet()) {
+				var chatId = getInboxGroupChatId();
+		    	var notificationId = getListUserNotificationId(getElementIdSuffix(chatId));
+		    	if($('#'+notificationId).text() != '0') {
+		    		markGroupChatMessagesAsRead(chatId);
+		    	}				
+			} else {
+				var user = getInboxChatUser();
+		    	var notificationId = getListUserNotificationId(getElementIdSuffix(user));
+		    	if($('#'+notificationId).text() != '0') {
+		    		markMessagesAsRead(user);
+		    	}
+			}
+		});	
+
 		$('.group_chat_window').find('.chat_input').focus(function() {			
 	    	var chatId = $(this).closest('.input-group').find('.btn-chat-send').attr("data-chat-id");
 	    	var notificationId = getChatUserNotificationId(getElementIdSuffix(chatId));
