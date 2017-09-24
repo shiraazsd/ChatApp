@@ -180,6 +180,9 @@ border: 6px solid #f3f3f3;
   padding: 18px 10px;
   width: 100%;
 }
+.new_message_head span {
+  font-size: 20px;
+}
 .message_section {
   border: 1px solid #dddddd;
 }
@@ -307,7 +310,7 @@ border: 6px solid #f3f3f3;
   width: 200px;
   margin: auto;
 }
-.msg_receive sup {
+.msg_receive sup, .chat-body1  sup {
   color: royalblue;
   font-style: italic;
   font-size: 11px;
@@ -318,4 +321,21 @@ border: 6px solid #f3f3f3;
 .message_style {
   font-size: 11px;
   color: cadetblue;	
+}
+.inboxChatTitleEditable {
+	cursor: pointer;
+}
+.inboxChatTitleEditing {
+    background-color: white;
+    font-size: 13px;
+    font-family: initial;
+    border-style: solid;
+    border-width: 1px;
+    border-color: darkgray;
+}
+
+.new_message_head .selectGroupChatUser {
+   cursor: pointer;
+   padding-left: 10px;
+   vertical-align: bottom;
 }

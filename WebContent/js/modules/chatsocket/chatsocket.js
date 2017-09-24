@@ -10,6 +10,7 @@ var chatsocket = function() {
 			console.log("error");
 		}
 		ws.onmessage = function(event) {
+			var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";				 	
 			var message = JSON.parse(event.data);
 			//Refresh the list since there is a user which is online/offline now
 			if(message.content == 'refreshContact') {
@@ -18,28 +19,46 @@ var chatsocket = function() {
 				var idSuffix;
 				var status;
 				var id;
-				if(message.isGroupChat) {
-					idSuffix = getElementIdSuffix(message.id);
-					status = createNewGroupChatBox(message.id, message.id);
-					id = message.id;
-					fetchAndPopulateGroupChatContactList()					
-				} else {
-					idSuffix = getElementIdSuffix(message.from);						
-					status = createNewChatBox(message.from);
-					id = message.from;
-					fetchAndPopulateUserContactList();					
-				}				
-				if(!status) {
-					var msg_panel_id = getMsgPanelId(idSuffix);			
+				if(isChatContext()) {				
 					if(message.isGroupChat) {
-						$("#"+msg_panel_id).append(groupChatMessageReceive(message.content, message.from, message.messageTime));
+						idSuffix = getElementIdSuffix(message.id);
+						status = createNewGroupChatBox(message.id, message.id);
+						id = message.id;
+						fetchAndPopulateGroupChatContactList()					
 					} else {
-						$("#"+msg_panel_id).append(messageReceive(message.content, message.messageTime));						
-					}
+						idSuffix = getElementIdSuffix(message.from);						
+						status = createNewChatBox(message.from);
+						id = message.from;
+						fetchAndPopulateUserContactList();					
+					}				
+					if(!status) {
+						var msg_panel_id = getMsgPanelId(idSuffix);			
+						if(message.isGroupChat) {
+							$("#"+msg_panel_id).append(groupChatMessageReceive(message.content, message.from, message.messageTime));
+						} else {
+							$("#"+msg_panel_id).append(messageReceive(message.content, message.messageTime));						
+						}
+						
+						}
+			    	scrollToBottom(id);
+					updateNotification(id);
+				} else {
+
+					if(message.isGroupChat) {
+						if(getInboxGroupChatId() == message.id) {
+							appendReceiveMessageToInboxGroupChat(img, message.content, message.from, message.messageTime);
+						}
+						fetchAndPopulateGroupChatContactList();					
+					} else {
+						if(getInboxChatUser() == message.from) {
+							appendReceiveMessageToInboxChat(img, message.content, message.messageTime);
+						}
+						fetchAndPopulateUserContactList();					
+					}				
+					scrollToInboxBottom();
+					updateInboxNotification(id, message.isGroupChat);
 					
-					}
-		    	scrollToBottom(id);
-				updateNotification(id);
+				}
 			}
 		};
 
@@ -129,22 +148,30 @@ var chatsocket = function() {
 	
 	var eventClick = function() {
 		$('.personal_chat_window').find('.btn-chat-send').unbind('click');
+		$('#btnSendMessage').unbind('click');
 		$('.group_chat_window').find('.btn-chat-send').unbind('click');
+		$('#inputMessageContent').unbind('keypress');
 		$('.chat_input').unbind('keypress');
 		$('#userListCategory').find('li').unbind('click');
 		$('#contactList').find('.user_list_entry').unbind('click');
 		$('#contactList').find('.group_chat_list_entry').find('.chat_box_open_class').unbind('click');
 		$('.personal_chat_window').find('.chat_input').unbind('focus');			
+		$('#inputMessageContent').unbind('focus');
 		$('.group_chat_window').find('.chat_input').unbind('focus');			
 		$('#newGroupChat').unbind('click');
 		$('.panel-title-groupchat').find('.chat_box_heading_text').unbind('click');
+		$('.panel-title-groupchat').find('.chat_box_heading_text').unbind('blur');
 		$('.chat_box_heading_text').unbind('keypress');
 		$('.selectGroupChatUser').unbind('click');
 		$('#groupChatUserSelection').unbind('shown.bs.modal');
 		$('#groupChatUserSelection').find('i').unbind('click');
 		$('#contactList').find('.group_chat_list_entry').find('.option_open_class').unbind('click');
 		$('#clearGroupChat').unbind('click');
-		$('#leaveGroupChat').unbind('click');		
+		$('#leaveGroupChat').unbind('click');
+		$('#inboxGroupChatName').unbind('click');
+		$('#inboxGroupChatName').unbind('blur');
+		$('#inboxGroupChatName').unbind('keypress');
+		
 		$('.personal_chat_window').find('.btn-chat-send').click(function() {
 			console.log();
 			sendPersonalMessage($(this));
@@ -180,12 +207,14 @@ var chatsocket = function() {
 		$('#contactList').find('.user_list_entry').click(function() {
 			var selectedUserEmail = $(this).attr('data-id-email');
 			performContactListUserClickActionOnContext(selectedUserEmail);
+			setOpenInboxChat(user, user, 'user');			
 		});
 		$('#contactList').find('.group_chat_list_entry').find('.chat_box_open_class').click(function() {
 			var el = $(this).closest('.group_chat_list_entry');
 			var chatId = el.attr('data-chat-id');
 			var chatName = el.attr('data-chat-name');
 			performGroupChatListClickActionOnContext(chatId, chatName);
+			setOpenInboxChat(chatName, chatId, 'chat');					
 		});
 
 		$('.personal_chat_window').find('.chat_input').focus(function() {			
@@ -245,7 +274,12 @@ var chatsocket = function() {
 		});	
 		
 		$('.selectGroupChatUser').click(function (e) {
-			var chatId = $(this).closest('.chat-window').attr('data-chat-id');
+			var chatId;
+			if(isChatContext()) {
+				chatId = $(this).closest('.chat-window').attr('data-chat-id');
+			} else {
+				chatId = getInboxGroupChatId();
+			}
 			$('#groupChatUserSelection').attr('data-chat-id', chatId);
 			$('#groupChatUserSelection').modal('show');				
 		});
@@ -276,6 +310,26 @@ var chatsocket = function() {
 			closeGroupChatWindow(chatId);			
 		});
 		
+		$('#inboxGroupChatName').click(function() {
+	        $(this).attr('contentEditable', true);
+	        $(this).removeClass('inboxChatTitleEditable');
+	        $(this).addClass('inboxChatTitleEditing');
+	        $(this).focus();
+		}).blur(
+	        function() {
+	            $(this).attr('contentEditable', false);
+		        $(this).removeClass('inboxChatTitleEditing');
+		        $(this).addClass('inboxChatTitleEditable');
+		        var chatId = getInboxGroupChatId();
+	            updateGroupChat(chatId, $(this).text());
+
+	        });		
+		$('#inboxGroupChatName').keypress(function(e) {
+		    if(e.which == 13) {
+		    	$(this).blur();
+		    }
+		});			
+				
 	};
 
 	return {
