@@ -203,7 +203,7 @@ border: 6px solid #f3f3f3;
 .chat_area .chat-body1 {
   margin-left: 50px;
 }
-.chat-body1 p {
+.admin_chat .chat-body1 p {
   background: #fbf9fa none repeat scroll 0 0;
   padding: 10px;
 }
@@ -311,9 +311,11 @@ border: 6px solid #f3f3f3;
   margin: auto;
 }
 .msg_receive sup, .chat-body1  sup {
+  top: 0px; 	
   color: royalblue;
   font-style: italic;
   font-size: 11px;
+  padding-left: 5px;  
 }
 .list-unstyled {
   display : grid;
@@ -338,4 +340,16 @@ border: 6px solid #f3f3f3;
    cursor: pointer;
    padding-left: 10px;
    vertical-align: bottom;
+}
+.inbox_group_chat_receive {
+   background: #e6ff9c;	
+   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);   
+}
+
+.chat_time_group_chat_receive {
+	padding-right : 5px;
+}
+.inbox_group_chat_receive_content {
+	padding-left : 5px;
+    margin-top : 5px;	
 }

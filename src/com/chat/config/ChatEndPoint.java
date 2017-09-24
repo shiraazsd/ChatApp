@@ -131,9 +131,9 @@ public class ChatEndPoint {
 
 	@OnError
 	public void onError(Session session, Throwable throwable) throws IOException, EncodeException {
-		broadcastRefreshContact();
 		throwable.printStackTrace();
-		log.warning(throwable.toString());
+		log.warning(throwable.toString());		
+		broadcastRefreshContact();
 	}
 
 	private static void broadcastRefreshContact() throws IOException, EncodeException {
