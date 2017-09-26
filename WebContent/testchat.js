@@ -30,10 +30,10 @@ $(document).on('click', '.icon_close', function (e) {
 	var user = $("#"+chatWindow).find('.panel-title').text().trim();
 	var data;
 	if($(this).closest('.personal_chat_window').length != 0) {		
-		data = {id : user, type : 'user'}
+		data = {id : user, type : USER}
 	} else {
 		var chatId = $(this).closest('.group_chat_window').attr('data-chat-id');
-		data = {id : chatId, type : 'chat'}		
+		data = {id : chatId, type : CHAT}		
 	}
 	removeFromOpenChatUsers(data);
     $("#"+chatWindow).remove();

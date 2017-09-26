@@ -254,14 +254,18 @@ var chatsocket = function() {
 			createNewGroupChat();
 		});				
 
-		$('.panel-title-groupchat').find('.chat_box_heading_text').click(function() {
-	        $(this).attr('contentEditable', true);
-	        $(this).removeClass('chat_box_heading_text');
-	        $(this).addClass('chat_box_heading_text_input');
-	        $(this).focus();
-		}).blur(
+		$('.panel-title-groupchat').find('.group_chat_name_edit').click(function() {
+			var el = $(this).closest('.panel-title').find('.chat_box_heading_text');
+			$(this).hide();
+	        $(el).attr('contentEditable', true);
+	        $(el).removeClass('chat_box_heading_text');
+	        $(el).addClass('chat_box_heading_text_input');
+	        $(el).focus();	        
+		})
+		$('.panel-title-groupchat').find('.chat_box_heading_text').blur(
 	        function() {
-	            $(this).attr('contentEditable', false);
+				$(this).closest('.panel-title').find('.group_chat_name_edit').show();
+	        	$(this).attr('contentEditable', false);
 		        $(this).removeClass('chat_box_heading_text_input');
 		        $(this).addClass('chat_box_heading_text');
 		        var chatId = $(this).closest('.chat-window').attr('data-chat-id');
@@ -311,17 +315,21 @@ var chatsocket = function() {
 			closeGroupChatWindow(chatId);			
 		});
 		
-		$('#inboxGroupChatName').click(function() {
-	        $(this).attr('contentEditable', true);
-	        $(this).removeClass('inboxChatTitleEditable');
-	        $(this).addClass('inboxChatTitleEditing');
-	        $(this).focus();
-		}).blur(
-	        function() {
+		$('#editGroupChat').click(function() {	
+			var el = $('#inboxGroupChatName');
+			$(this).hide();
+			el.attr('contentEditable', true);
+	        el.removeClass('inboxChatTitleEditable');
+	        el.addClass('inboxChatTitleEditing');
+	        el.focus();
+		})
+		$('#inboxGroupChatName').blur(function() {
+				$('#editGroupChat').show();	        	
 	            $(this).attr('contentEditable', false);
 		        $(this).removeClass('inboxChatTitleEditing');
 		        $(this).addClass('inboxChatTitleEditable');
 		        var chatId = getInboxGroupChatId();
+		        setOpenInboxChat($(this).text(), chatId, CHAT)		        
 	            updateGroupChat(chatId, $(this).text());
 
 	        });		
@@ -334,6 +342,19 @@ var chatsocket = function() {
 			var value = $(this).val();
 			filterSideBarList(value);
 		});
+		$('.panel-title-groupchat').find('.chat_box_heading_text').click(function() {
+	        var chatId = $(this).closest('.chat-window').attr('data-chat-id');
+	        var chatName  = $(this).text();
+			setOpenInboxChat(chatName, chatId, CHAT);
+			window.location = "./inbox.xhtml";			
+		});
+		$('.panel-title-personalchat').find('.chat_box_heading_text').click(function() {
+	        var user = $(this).text();
+			setOpenInboxChat(user, user, USER);
+			window.location = "./inbox.xhtml";			
+		});
+
+		
 	};
 
 	return {

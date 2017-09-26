@@ -44,7 +44,7 @@ Author: Prasanna Bhale
     	 <div class="row">
             <div id="custom-search-input">
                <div class="input-group col-md-12">
-                  <input id="searchSideBar" type="text" class="  search-query form-control" placeholder="Conversation" />
+                  <input id="searchSideBar" type="text" class="  search-query form-control" placeholder="Filter..." />
                   <button class="btn btn-danger" type="button">
                   <span class=" glyphicon glyphicon-search"></span>
                   </button>
@@ -54,7 +54,7 @@ Author: Prasanna Bhale
             <div class="dropdown all_conversation">
                <button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                <i class="fa fa-weixin" aria-hidden="true"></i>
-               	Filter Users
+               	Choose Chat
                <span class="caret pull-right"></span>
                </button>
                <ul id="userListCategory" class="dropdown-menu" aria-labelledby="dropdownMenu2" data-current-selection="1">
@@ -76,9 +76,9 @@ Author: Prasanna Bhale
             </div>
             <div class="all_conversation">
                <button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-               <i class="fa fa-inbox" aria-hidden="true"></i>
-               	Goto Inbox
-				<i id="newGroupChat" class="fa fa-plus fa-1 pull-right" aria-hidden="true" title="Create group chat"></i>
+				<i id="newGroupChat" class="fa fa-plus fa-1" aria-hidden="true" title="Create group chat">			
+				</i>
+				Create New Group Chat	
                </button>
             </div>            
             </div>
@@ -93,6 +93,7 @@ Author: Prasanna Bhale
 		 <div class="pull-left">		 
 		 	<span id='inboxUserName'></span>
 		 	<span id='inboxGroupChatName' class='inboxChatTitleEditable'></span>
+			<i id="editGroupChat" class="fa fa-pencil group_chat_name_edit" title="Edit Group Chat Name" aria-hidden="true"></i>		 	
 		 </div>
 		 <div>
 			<i class="fa fa-user-plus selectGroupChatUser" aria-hidden="true" style="cursor:pointer;"></i>
@@ -266,9 +267,9 @@ Author: Prasanna Bhale
        <span class="chat-img1 pull-left">
        <img src="{{img}}" alt="User Avatar" class="img-circle"></img>
        </span>
-       	<div class="chat-body1 clearfix">
-          <p>{{content}}</p>
-			<div class="chat_time message_style pull-right">{{message_time}}</div>
+       	<div class="chat-body1 clearfix inbox_group_chat_receive">
+          <p class='inbox_group_chat_receive_content'>{{content}}</p>
+			<div class="chat_time message_style pull-right chat_time_group_chat_receive">{{message_time}}</div>
        	</div>
 	   </li>
 	</script>

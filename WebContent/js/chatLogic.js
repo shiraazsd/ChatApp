@@ -8,6 +8,10 @@ $(document).ready(function() {
 });
 
 var imgUrl = "../rest/chat/profilePic/";
+var restApiContext = "../rest/"
+	
+var USER = 'user';
+var CHAT = 'chat;'
 
 var OPEN_CHAT_USERS = "openChatUsers";
 var OPEN_INBOX_CHAT = "openInboxChat";
@@ -96,7 +100,7 @@ var performContactListUserClickActionOnContext = function(user) {
 		var id = getChatWindowId(getElementIdSuffix(user));
 		$('#'+id).find('.chat_input').focus();		
 	} else {
-		setOpenInboxChat(user, user, 'user');			
+		setOpenInboxChat(user, user, USER);			
 		setInboxChatUser(user);		
 		populateInboxChatHistory(user);		
 	}
@@ -114,7 +118,7 @@ var performGroupChatListClickActionOnContext = function(chatId, chatName) {
 		var id = getChatWindowId(getElementIdSuffix(chatId));
 		$('#'+id).find('.chat_input').focus();	
 	} else {
-		setOpenInboxChat(chatName, chatId, 'chat');							
+		setOpenInboxChat(chatName, chatId, CHAT);							
 		setInboxGroupChat(chatId, chatName);
 		populateGroupChatInboxHistory(chatId);		
 	}
@@ -145,13 +149,13 @@ var createNewChatBox = function(selectedUserEmail) {
 	displayUserNotificationCount(getChatUserNotificationId(idSuffix), getCurrentUserListNotification(selectedUserEmail));	
 	populateChatHistory(selectedUserEmail);
 	chatsocket.initAction();
-	addToOpenChatUsers({id : selectedUserEmail, type : 'user'});
+	addToOpenChatUsers({id : selectedUserEmail, type : USER});
 	return true;
 };	
 
 var populateChatHistory = function(toUser) {
 	var fromUser = getLoggedInUser();
-	var chatMessageHistoryApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/chatMessages?from=" + fromUser + "&to=" + toUser; 
+	var chatMessageHistoryApiUrl = restApiContext + "chat/chatMessages?from=" + fromUser + "&to=" + toUser; 
 	$.getJSON(chatMessageHistoryApiUrl,
 			   function(data) {
 				 var toUser = data.to;
@@ -212,12 +216,14 @@ var setInboxGroupChat = function(chatId, chatName) {
 var showGroupChatOptions = function() {
 	$('.selectGroupChatUser').show();		
 	$('#inboxGroupChatName').show();	
+	$('#editGroupChat').show();
 	$('#inboxUserName').hide();
 };
 
 var hideGroupChatOptions = function() {
 	$('#inboxGroupChatName').hide();
 	$('.selectGroupChatUser').hide();
+	$('#editGroupChat').hide();
 	$('#inboxUserName').show();	
 };
 
@@ -227,7 +233,7 @@ var appendToInboxChatContainer = function(child) {
 
 var populateInboxChatHistory = function(toUser) {
 	var fromUser = getLoggedInUser();
-	var chatMessageHistoryApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/chatMessages?from=" + fromUser + "&to=" + toUser; 
+	var chatMessageHistoryApiUrl = restApiContext + "chat/chatMessages?from=" + fromUser + "&to=" + toUser; 
 	$.getJSON(chatMessageHistoryApiUrl,
 			   function(data) {
 				 var toUser = data.to;
@@ -253,7 +259,7 @@ var populateInboxChatHistory = function(toUser) {
 
 var populateGroupChatInboxHistory = function(chatId) {
 	var loggedInUser = getLoggedInUser();
-	var groupChatMessageHistoryApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/groupChatMessages?user=" + loggedInUser + "&chatId=" + chatId; 
+	var groupChatMessageHistoryApiUrl = restApiContext + "chat/groupChatMessages?user=" + loggedInUser + "&chatId=" + chatId; 
 	$.getJSON(groupChatMessageHistoryApiUrl,
 			   function(data) {
 				 var loggedInUser = getLoggedInUser();
@@ -281,7 +287,7 @@ var populateGroupChatInboxHistory = function(chatId) {
 
 var populateGroupChatHistory = function(chatId) {
 	var loggedInUser = getLoggedInUser();
-	var groupChatMessageHistoryApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/groupChatMessages?user=" + loggedInUser + "&chatId=" + chatId; 
+	var groupChatMessageHistoryApiUrl = restApiContext + "chat/groupChatMessages?user=" + loggedInUser + "&chatId=" + chatId; 
 	$.getJSON(groupChatMessageHistoryApiUrl,
 			   function(data) {
 				 var loggedInUser = getLoggedInUser();
@@ -446,9 +452,10 @@ var getOpenChatUsers = function(user) {
 };
 
 var createOpenChatUsersChatBox = function() {
+	if(!isChatContext()) return;
 	var dataList = getOpenChatUsers();
 	for(var i = 0; i < dataList.length; ++i) {
-		if(dataList[i].type == 'user') {
+		if(dataList[i].type == USER) {
 			createNewChatBox(dataList[i].id);
 		} else {
 			restoreGroupChatBox(dataList[i].id);			
@@ -457,17 +464,18 @@ var createOpenChatUsersChatBox = function() {
 };
 
 var createOpenInboxChat = function() {
+	if(isChatContext()) return;
 	var data = JSON.parse(sessionStorage.getItem(OPEN_INBOX_CHAT));
-	if(data.type == 'user') {
+	if(data.type == USER) {
 		performContactListUserClickActionOnContext(data.id);		
-	} else if (data.type == 'chat') {
+	} else if (data.type == CHAT) {
 		performGroupChatListClickActionOnContext(data.id, data.name);		
 	}	
 };
 
 
 var restoreGroupChatBox = function(chatId) {
-	var getGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getGroupChat?chatId=" + chatId; 
+	var getGroupChatApiUrl = restApiContext + "chat/getGroupChat?chatId=" + chatId; 
 	$.getJSON(getGroupChatApiUrl,
 			   function(data) {
 				createNewGroupChatBox(data.id, data.name);					
@@ -487,7 +495,7 @@ var loadUserContactList = function() {
 var fetchAndPopulateUserContactList = function() {
 	var loggedInUser = getLoggedInUser();
 	var type = $('#userListCategory').attr("data-current-selection");
-	var userListApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getUsersList?loggedInUser=" + loggedInUser + "&type=" + type; 
+	var userListApiUrl = restApiContext + "chat/getUsersList?loggedInUser=" + loggedInUser + "&type=" + type; 
 	$.getJSON(userListApiUrl,
 			   function(data) {
 					populateUserContactList(data);
@@ -496,7 +504,7 @@ var fetchAndPopulateUserContactList = function() {
 
 var fetchAndPopulateGroupChatContactList = function() {
 	var loggedInUser = getLoggedInUser();
-	var groupChatListApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getUserGroupChat?loggedInUser=" + loggedInUser; 
+	var groupChatListApiUrl = restApiContext + "chat/getUserGroupChat?loggedInUser=" + loggedInUser; 
 	$.getJSON(groupChatListApiUrl,
 			   function(data) {
 					populateGroupChatContactList(data);
@@ -593,7 +601,7 @@ var displayUserNotificationCount = function(id, count) {
 
 var markMessagesAsRead = function(fromUser) {
 	var toUser = getLoggedInUser();
-	var markReadMessagesApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/markMessagesAsRead?to=" + toUser + "&from=" + fromUser; 
+	var markReadMessagesApiUrl = restApiContext + "chat/markMessagesAsRead?to=" + toUser + "&from=" + fromUser; 
 	$.getJSON(markReadMessagesApiUrl,
 			   function(data) {
 					fetchAndPopulateUserContactList();
@@ -602,7 +610,7 @@ var markMessagesAsRead = function(fromUser) {
 
 var markGroupChatMessagesAsRead = function(chatId) {
 	var user = getLoggedInUser();
-	var markGroupChatReadMessagesApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/markGroupChatMessagesAsRead?user=" + user + "&chatId=" + chatId; 
+	var markGroupChatReadMessagesApiUrl = restApiContext + "chat/markGroupChatMessagesAsRead?user=" + user + "&chatId=" + chatId; 
 	$.getJSON(markGroupChatReadMessagesApiUrl,
 			   function(data) {
 				fetchAndPopulateGroupChatContactList();
@@ -654,7 +662,7 @@ var scrollToInboxBottom = function() {
 
 var createNewGroupChat = function() {
 	var loggedInUser = getLoggedInUser();
-	var createNewGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/createNewGroupChat?loggedInUser=" + loggedInUser; 
+	var createNewGroupChatApiUrl = restApiContext + "chat/createNewGroupChat?loggedInUser=" + loggedInUser; 
 	$.getJSON(createNewGroupChatApiUrl,
 			   function(data) {
 					if(isChatContext()) {
@@ -668,7 +676,7 @@ var createNewGroupChat = function() {
 };
 
 var updateGroupChat = function(chatId, chatNameNew) {
-	var createNewGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/updateGroupChat?chatId=" + chatId + "&chatNameNew=" + chatNameNew; 
+	var createNewGroupChatApiUrl = restAPiContext + "chat/updateGroupChat?chatId=" + chatId + "&chatNameNew=" + chatNameNew; 
 	$.getJSON(createNewGroupChatApiUrl,
 			   function(data) {
 				loadUserContactList();			
@@ -677,7 +685,7 @@ var updateGroupChat = function(chatId, chatNameNew) {
 
 var clearGroupChatHistory = function(chatId) {
 	var loggedInUser = getLoggedInUser();
-	var clearGroupChatHistoryApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/clearGroupChatHistory?chatId=" + chatId + "&loggedInUser=" + loggedInUser; 
+	var clearGroupChatHistoryApiUrl = restApiContext + "chat/clearGroupChatHistory?chatId=" + chatId + "&loggedInUser=" + loggedInUser; 
 	$.getJSON(clearGroupChatHistoryApiUrl,
 			   function(data) {
 				loadUserContactList();			
@@ -686,7 +694,7 @@ var clearGroupChatHistory = function(chatId) {
 
 var leaveGroupChatHistory = function(chatId) {
 	var loggedInUser = getLoggedInUser();
-	var leaveGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/leaveGroupChat?chatId=" + chatId + "&loggedInUser=" + loggedInUser; 
+	var leaveGroupChatApiUrl = restApiContext + "chat/leaveGroupChat?chatId=" + chatId + "&loggedInUser=" + loggedInUser; 
 	$.getJSON(leaveGroupChatApiUrl,
 			   function(data) {
 				loadUserContactList();			
@@ -715,7 +723,7 @@ var createNewGroupChatBox = function(chatId, chatName) {
 	displayUserNotificationCount(getChatUserNotificationId(idSuffix), getCurrentUserListNotification(chatId));	
 	populateGroupChatHistory(chatId);
 	chatsocket.initAction();
-	addToOpenChatUsers({id : chatId, type : 'chat'});
+	addToOpenChatUsers({id : chatId, type : CHAT});
 	return true;
 };	
 
@@ -738,12 +746,12 @@ var populateSelectionList = function(id, data, iconClass) {
 var updateUserSelectionModal = function() {
 	var chatId = getSelectedGroupChatId();
 	var loggedInUser = getLoggedInUser();
-	var getGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getGroupChat?chatId=" + chatId; 
+	var getGroupChatApiUrl = restApiContext + "chat/getGroupChat?chatId=" + chatId; 
 	$.getJSON(getGroupChatApiUrl,
 			   function(data) {
 					populateSelectionList('modalGroupUserList', data.members, 'fa-minus');
 	});		
-	var getAvailableUserApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/getAvailableUsers?chatId=" + chatId; 					
+	var getAvailableUserApiUrl = restApiContext + "chat/getAvailableUsers?chatId=" + chatId; 					
 	$.getJSON(getAvailableUserApiUrl,
 			   function(data) {
 		populateSelectionList('modalAvailableUserList', data, 'fa-plus');						
@@ -752,7 +760,7 @@ var updateUserSelectionModal = function() {
 
 var addMemberToGroupChat = function(chatId, user) {
 	var loggedInUser = getLoggedInUser();
-	var getaddMemberToGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/addMemberToGroupChat?chatId=" + chatId +"&user=" + user;
+	var getaddMemberToGroupChatApiUrl = restApiContext + "chat/addMemberToGroupChat?chatId=" + chatId +"&user=" + user;
 	$.getJSON(getaddMemberToGroupChatApiUrl,
 			   function(data) {
 				updateUserSelectionModal();
@@ -761,7 +769,7 @@ var addMemberToGroupChat = function(chatId, user) {
 
 var removeMemberFromGroupChat = function(chatId, user) {
 	var loggedInUser = getLoggedInUser();
-	var getremoveMemberFromGroupChatApiUrl = "http://localhost:8090/EnterpriceChat/rest/chat/removeMemberFromGroupChat?chatId=" + chatId +"&user=" + user;
+	var getremoveMemberFromGroupChatApiUrl = restApiContext + "chat/removeMemberFromGroupChat?chatId=" + chatId +"&user=" + user;
 	$.getJSON(getremoveMemberFromGroupChatApiUrl,
 			   function(data) {
 				updateUserSelectionModal();
