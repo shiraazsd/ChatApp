@@ -517,6 +517,7 @@ var populateUserContactList = function(data) {
 		setUserNotificationCount(data[i].user, data[i].notification);	
 	}
 	chatsocket.initAction();	
+	triggerSideBarFilter();	
 };
 
 var populateGroupChatContactList = function(data) {	
@@ -538,6 +539,7 @@ var populateGroupChatContactList = function(data) {
 			setUserNotificationCount(data[i].id, data[i].notification);	
 		}		
 	}
+	triggerSideBarFilter();	
 };
 
 
@@ -796,4 +798,24 @@ var closeGroupChatWindow = function(chatId) {
 
 var getCurrentTime = function() {
 	return moment().format("YYYY-MM-DD HH:mm:ss");	
-}
+};
+
+var filterSideBarList = function(value) {
+	var elements = $('#contactListContainer').find('li');
+	elements.each(function(index,elem){
+		if($(elem).find('strong').text().indexOf(value) == -1) {
+			$(elem).css('display', 'none');
+		} else {
+			$(elem).css('display', '');			
+		}
+	});	
+};
+
+var clearSideBarFilter = function() {
+	$('#searchSideBar').val('');
+	$('#searchSideBar').keyup();
+};
+
+var triggerSideBarFilter = function() {
+	$('#searchSideBar').keyup();
+};

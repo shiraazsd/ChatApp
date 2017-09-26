@@ -172,6 +172,8 @@ var chatsocket = function() {
 		$('#inboxGroupChatName').unbind('click');
 		$('#inboxGroupChatName').unbind('blur');
 		$('#inboxGroupChatName').unbind('keypress');
+		$('#searchSideBar').unbind('keyup');
+		
 		
 		$('.personal_chat_window').find('.btn-chat-send').click(function() {
 			console.log();
@@ -328,7 +330,10 @@ var chatsocket = function() {
 		    	$(this).blur();
 		    }
 		});			
-				
+		$('#searchSideBar').keyup(function() {
+			var value = $(this).val();
+			filterSideBarList(value);
+		});
 	};
 
 	return {
