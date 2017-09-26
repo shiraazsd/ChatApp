@@ -1,5 +1,7 @@
 package com.chat.rest;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,9 +10,11 @@ import java.util.TreeSet;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.chat.config.ChatEndPoint;
 import com.chat.core.dao.ex.SQLException;
@@ -280,6 +284,23 @@ public class ChatRestService {
 			e.printStackTrace();
 		}
 		return response;
+	}
+
+	@GET
+	@Path("/profilePic/{user}")
+	@Produces({"image/png", "images/jpg"})	
+	public Response getUserProfilePic(@PathParam("user") String user) {
+		try {
+			byte[] bytes = userRepository.getUserProfilePicAsByte(user);
+			if(bytes == null) {
+				bytes = userRepository.getDefaultUserProfilePicAsByte();
+			}
+			return Response.ok(new ByteArrayInputStream(bytes)).build();
+		} catch (SQLException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;				
 	}
 	
 	private Set<UserStatusDto> getAllUserList(String loggedInUser) {

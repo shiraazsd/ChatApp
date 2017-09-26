@@ -10,8 +10,8 @@ var chatsocket = function() {
 			console.log("error");
 		}
 		ws.onmessage = function(event) {
-			var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";				 	
 			var message = JSON.parse(event.data);
+			var img = imgUrl + message.from;				 	
 			//Refresh the list since there is a user which is online/offline now
 			if(message.content == 'refreshContact') {
 				loadUserContactList();
@@ -34,9 +34,9 @@ var chatsocket = function() {
 					if(!status) {
 						var msg_panel_id = getMsgPanelId(idSuffix);			
 						if(message.isGroupChat) {
-							$("#"+msg_panel_id).append(groupChatMessageReceive(message.content, message.from, message.messageTime));
+							$("#"+msg_panel_id).append(groupChatMessageReceive(message.content, message.from, message.messageTime, img));
 						} else {
-							$("#"+msg_panel_id).append(messageReceive(message.content, message.messageTime));						
+							$("#"+msg_panel_id).append(messageReceive(message.content, message.messageTime, img));						
 						}
 						
 						}
@@ -85,11 +85,11 @@ var chatsocket = function() {
 		});
 
 		ws.send(json);
-		$("#"+msg_panel_id).append(messageSend(content, getCurrentTime()));
+		var img = imgUrl + getLoggedInUser();
+		$("#"+msg_panel_id).append(messageSend(content, getCurrentTime(), img));
 	};
 
 	var sendPersonalInboxMessage = function(user) {
-		var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";				 	
 		var messageElement;
 		var isGroupChat = isInboxGroupChatSet();		
 		//Validating the inputs
@@ -119,6 +119,7 @@ var chatsocket = function() {
 			});			
 		}
 		ws.send(json);
+		var img = imgUrl + getLoggedInUser();
 		appendSendMessageToInboxChat(img, content, getCurrentTime());
 	};
 	
@@ -126,7 +127,6 @@ var chatsocket = function() {
 		var inputElementId = element.attr("data-id");
 		var chatId = element.attr("data-chat-id");
 		var msg_panel_id = element.attr("data-id-msg-panel");
-		
 		//Validating the inputs
 		var content = $("#"+inputElementId).val();
 		//Reset the input fields
@@ -143,7 +143,8 @@ var chatsocket = function() {
 		});
 
 		ws.send(json);
-		$("#"+msg_panel_id).append(messageSend(content, getCurrentTime()));
+		var img = imgUrl + getLoggedInUser();
+		$("#"+msg_panel_id).append(messageSend(content, getCurrentTime(), img));
 	};
 	
 	var eventClick = function() {
@@ -207,14 +208,12 @@ var chatsocket = function() {
 		$('#contactList').find('.user_list_entry').click(function() {
 			var selectedUserEmail = $(this).attr('data-id-email');
 			performContactListUserClickActionOnContext(selectedUserEmail);
-			setOpenInboxChat(user, user, 'user');			
 		});
 		$('#contactList').find('.group_chat_list_entry').find('.chat_box_open_class').click(function() {
 			var el = $(this).closest('.group_chat_list_entry');
 			var chatId = el.attr('data-chat-id');
 			var chatName = el.attr('data-chat-name');
 			performGroupChatListClickActionOnContext(chatId, chatName);
-			setOpenInboxChat(chatName, chatId, 'chat');					
 		});
 
 		$('.personal_chat_window').find('.chat_input').focus(function() {			

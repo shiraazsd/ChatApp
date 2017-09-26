@@ -1,10 +1,21 @@
 package com.chat.core.repository.impl;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Blob;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -206,6 +217,26 @@ public class UserRepositoryImpl extends Dao implements UserRepository {
 		}
 	}
 
+	@Override
+	public byte[] getImageBlobAsBytes(ResultSet rs) throws SQLException {
+		try {
+			byte[] blobAsBytes = null;			
+			while (rs.next()) {
+				Blob blob = rs.getBlob("profile_pic");
+				if(blob != null) {
+					int blobLength = (int) blob.length();  
+					blobAsBytes = blob.getBytes(1, blobLength);
+					blob.free();
+				}
+				return blobAsBytes;
+			}
+		} catch (Exception e) {
+			LOGGER.error("fail to the profile pic", e);
+			throw new SQLException("fail to the profile pic", e);
+		}
+		return null;
+	}
+	
 	private User getUserByRS(ResultSet rs) throws SQLException {
 		try {
 			User user = null;
@@ -251,5 +282,43 @@ public class UserRepositoryImpl extends Dao implements UserRepository {
 
 	}
 	
+	@Override
+	public byte[] getUserProfilePicAsByte(String user) throws SQLException {
+		try {
+			sql = "select profile_pic from user where email = ':user'"; 						
+			Map<String, Object> parameters = new HashMap<>();
+			parameters.put(":user", user);
+			return getImageBlobAsBytes(getResulsetOf(ReplaceQueryParams(sql, parameters)));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SQLException("Cannot retrieve unread message count");
+		}  finally {
+			closeConections();
+		}
+
+	}
 	
+	@Override
+	public byte[] getDefaultUserProfilePicAsByte() throws IOException {
+		 // open image
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		String path = classLoader.getResource("./resources/user_profile_pic.jpg").getPath();
+
+		File file = new File(path);
+		   
+	    try
+	    {
+	      //create FileInputStream object
+	      FileInputStream fin = new FileInputStream(file);
+	     
+	       byte fileContent[] = new byte[(int)file.length()];
+	     
+	       fin.read(fileContent);
+	       return fileContent;
+	    } catch(FileNotFoundException e) {
+	        System.out.println("File not found" + e);
+	    } finally {
+	    }
+		return null;
+	}
 }

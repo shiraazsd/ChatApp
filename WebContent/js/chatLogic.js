@@ -7,6 +7,8 @@ $(document).ready(function() {
 	loadUserContactList();
 });
 
+var imgUrl = "../rest/chat/profilePic/";
+
 var OPEN_CHAT_USERS = "openChatUsers";
 var OPEN_INBOX_CHAT = "openInboxChat";
 
@@ -94,6 +96,7 @@ var performContactListUserClickActionOnContext = function(user) {
 		var id = getChatWindowId(getElementIdSuffix(user));
 		$('#'+id).find('.chat_input').focus();		
 	} else {
+		setOpenInboxChat(user, user, 'user');			
 		setInboxChatUser(user);		
 		populateInboxChatHistory(user);		
 	}
@@ -111,6 +114,7 @@ var performGroupChatListClickActionOnContext = function(chatId, chatName) {
 		var id = getChatWindowId(getElementIdSuffix(chatId));
 		$('#'+id).find('.chat_input').focus();	
 	} else {
+		setOpenInboxChat(chatName, chatId, 'chat');							
 		setInboxGroupChat(chatId, chatName);
 		populateGroupChatInboxHistory(chatId);		
 	}
@@ -159,9 +163,11 @@ var populateChatHistory = function(toUser) {
 					 return;
 			   	 for(var i = 0; i < messageList.length; ++i) {
 			   		 if(messageList[i].from == fromUser) {
-			   			appendSendMessageToChat(idSuffix, messageList[i].content, messageList[i].messageTime);
+			   			 var img = imgUrl + fromUser;
+			   			appendSendMessageToChat(idSuffix, messageList[i].content, messageList[i].messageTime, img);
 			   		 } else{
-			   			appendReceiveMessageToChat(idSuffix, messageList[i].content, messageList[i].messageTime);			   			 
+			   			 var img = imgUrl + toUser;
+			   			 appendReceiveMessageToChat(idSuffix, messageList[i].content, messageList[i].messageTime, img);			   			 
 			   		 }
 			   	 }
 			 	scrollToBottom(toUser);
@@ -231,12 +237,13 @@ var populateInboxChatHistory = function(toUser) {
 				 
 				 if(messageList.length == 0)
 					 return;
-				 var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";				 
 			   	 for(var i = 0; i < messageList.length; ++i) {
 			   		 if(messageList[i].from == fromUser) {
+						 var img = imgUrl + fromUser;				 			   			 
 			   			appendSendMessageToInboxChat(img, messageList[i].content, messageList[i].messageTime);
 			   		 } else{
-			   			appendReceiveMessageToInboxChat(img, messageList[i].content, messageList[i].messageTime);			   			 
+						 var img = imgUrl + toUser;				 			   			 
+			   			 appendReceiveMessageToInboxChat(img, messageList[i].content, messageList[i].messageTime);			   			 
 			   		 }
 			   	 }
 				scrollToInboxBottom();
@@ -256,13 +263,14 @@ var populateGroupChatInboxHistory = function(chatId) {
 
 				 if(messageList.length == 0)
 					 return;
-				 var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";				 
 
 				 for(var i = 0; i < messageList.length; ++i) {
 			   		 if(messageList[i].from == loggedInUser) {
-			   			appendSendMessageToInboxChat(img, messageList[i].content, messageList[i].messageTime);
+						 var img = imgUrl + loggedInUser;				 
+			   			 appendSendMessageToInboxChat(img, messageList[i].content, messageList[i].messageTime);
 			   		 } else{
-			   			appendReceiveMessageToInboxGroupChat(img, messageList[i].content, messageList[i].from, messageList[i].messageTime);			   			 
+						 var img = imgUrl + messageList[i].from;				 
+			   			 appendReceiveMessageToInboxGroupChat(img, messageList[i].content, messageList[i].from, messageList[i].messageTime);			   			 
 			   		 }
 			   	 }
 				scrollToInboxBottom();
@@ -286,9 +294,11 @@ var populateGroupChatHistory = function(chatId) {
 					 return;
 			   	 for(var i = 0; i < messageList.length; ++i) {
 			   		 if(messageList[i].from == loggedInUser) {
-			   			appendSendMessageToChat(idSuffix, messageList[i].content, messageList[i].messageTime);
+			   			 var img = imgUrl + loggedInUser;
+			   			appendSendMessageToChat(idSuffix, messageList[i].content, messageList[i].messageTime, img);
 			   		 } else{
-			   			appendReceiveMessageToGroupChat(idSuffix, messageList[i].content, messageList[i].from, messageList[i].messageTime);			   			 
+			   			 var img = imgUrl + messageList[i].from; 
+			   			appendReceiveMessageToGroupChat(idSuffix, messageList[i].content, messageList[i].from, messageList[i].messageTime, img);			   			 
 			   		 }
 			   	 }
 			 	scrollToBottom(chatId);
@@ -308,14 +318,14 @@ var isChatContext = function() {
 	return getPageContext() != 'INBOX';
 };
 
-var appendReceiveMessageToChat = function(idSuffix, content, time) {
+var appendReceiveMessageToChat = function(idSuffix, content, time, img) {
 	var msg_panel_id = getMsgPanelId(idSuffix);			
-	$("#"+msg_panel_id).append(messageReceive(content, time));	
+	$("#"+msg_panel_id).append(messageReceive(content, time, img));	
 };
 
-var appendReceiveMessageToGroupChat = function(idSuffix, content, from, time) {
+var appendReceiveMessageToGroupChat = function(idSuffix, content, from, time, img) {
 	var msg_panel_id = getMsgPanelId(idSuffix);			
-	$("#"+msg_panel_id).append(groupChatMessageReceive(content, from, time));	
+	$("#"+msg_panel_id).append(groupChatMessageReceive(content, from, time, img));	
 };
 
 
@@ -340,27 +350,27 @@ var appendReceiveMessageToInboxGroupChat = function(pic, message_content, from, 
 	appendToInboxChatContainer(html);	
 };
 
-var appendSendMessageToChat = function(idSuffix, content, time) {
+var appendSendMessageToChat = function(idSuffix, content, time, img) {
 	var msg_panel_id = getMsgPanelId(idSuffix);			
-	$("#"+msg_panel_id).append(messageSend(content, time));	
+	$("#"+msg_panel_id).append(messageSend(content, time, img));	
 };
 
-var messageSend = function(message, time) {
+var messageSend = function(message, time, img) {
 	var buildMessage = "<div class='row msg_container base_sent'>"
 			+ "<div class='col-md-10 col-xs-10'> "
 			+ "<div class='messages msg_sent'>" + "<p>" + message + "</p>"
 			+ "<time>" + time + "</time>"
 			+ "</div>" + "</div>" + "";
 	var imgMessage = "<div  class='col-md-2 col-xs-2 avatar'>"
-			+ "<img src='http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg'class='img-responsive ' />"
+			+ "<img src='" + img + "' class='img-responsive ' />"
 			+ "</div>" + "</div>";
 	return buildMessage + imgMessage;
 };
 
-var messageReceive = function(message, time) {
+var messageReceive = function(message, time, img) {
 	var imgMessage = "<div class='row msg_container base_receive'>" +
 			"<div  class='col-md-2 col-xs-2 avatar'>"
-			+ "<img src='http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg'class='img-responsive ' />"
+			+ "<img src='" + img + "'class='img-responsive ' />"
 			+ "</div>";
 	
 	var buildMessage = "<div class='col-md-10 col-xs-10'> "
@@ -370,10 +380,10 @@ var messageReceive = function(message, time) {
 	return imgMessage + buildMessage;
 };
 
-var groupChatMessageReceive = function(message, from, time) {
+var groupChatMessageReceive = function(message, from, time, img) {
 	var imgMessage = "<div class='row msg_container base_receive'>" +
 			"<div  class='col-md-2 col-xs-2 avatar'>"
-			+ "<img src='http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg'class='img-responsive ' />"
+			+ "<img src='" + img + "'class='img-responsive ' />"
 			+ "</div>";
 	
 	var buildMessage = "<div class='col-md-10 col-xs-10'> "
@@ -450,7 +460,7 @@ var createOpenInboxChat = function() {
 	var data = JSON.parse(sessionStorage.getItem(OPEN_INBOX_CHAT));
 	if(data.type == 'user') {
 		performContactListUserClickActionOnContext(data.id);		
-	} else {
+	} else if (data.type == 'chat') {
 		performGroupChatListClickActionOnContext(data.id, data.name);		
 	}	
 };
@@ -496,8 +506,8 @@ var fetchAndPopulateGroupChatContactList = function() {
 var populateUserContactList = function(data) {
 	$('#contactListContainer').empty();
 	var template = $("#user-contact-entry-template").html();
-	var img = "http://www.bitrebels.com/wp-content/uploads/2011/02/Original-Facebook-Geek-Profile-Avatar-1.jpg";
 	for(var i = 0; i < data.length; ++i) {
+		var img = imgUrl + data[i].user;
 		var idSuffix = getElementIdSuffix(data[i].user);
 		var params = { user_list_id : getUserListEntryId(idSuffix), user_list_email : data[i].user, user_pic : img, list_user_status_id : getListUserStatusId(idSuffix), list_user_notification_id : getListUserNotificationId(idSuffix)};
 		var html = Mustache.render(template, params);						
