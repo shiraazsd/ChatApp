@@ -112,8 +112,8 @@ Author: Prasanna Bhale
 						<div class="panel-heading top-bar">
 							<div class="col-md-6 col-xs-6">
 								<h3 class="panel-title panel-title-personalchat">
-									<span id="{{chat_user_status_id}}" class="fa"></span> 								
-									<span class="chat_box_heading_text" title="Go to Inbox">{{chat_user_email}}</span>
+									<span id="{{chat_user_status_id}}" class="fa"></span> 
+									<span class="chat_box_heading_text" title="Click here to view past messages">{{chat_user_email}}</span>
 								</h3>
 							</div>
 							<div class="col-md-6 col-xs-6" style="text-align: right;">
@@ -150,7 +150,7 @@ Author: Prasanna Bhale
 						<div class="panel-heading top-bar">
 							<div class="col-md-6 col-xs-6">
 								<h3 class="panel-title panel-title-groupchat">
-									<span class="chat_box_heading_text" title="Go to Inbox">{{name}}</span>
+									<span class="chat_box_heading_text" title="Click here to view past messages">{{name}}</span>
 									<i class="fa fa-pencil group_chat_name_edit" title="Edit Group Chat Name" aria-hidden="true"></i>
 								</h3>
 							</div>
@@ -184,6 +184,8 @@ Author: Prasanna Bhale
 
 	<script type="text/template" id="user-contact-entry-template">
                   <li id="{{user_list_id}}" data-id-email="{{user_list_email}}" class="clearfix user_list_entry">
+                    <div class="row">
+					<span class="col-md-11 chat_box_open_class">
                      <span class="chat-img pull-left">
                      <img src="{{user_pic}}" alt="User Avatar" class="img-circle"></img>
                      </span>
@@ -194,6 +196,8 @@ Author: Prasanna Bhale
 							<span id="{{list_user_notification_id}}" class="badge notification pull-right"></span>
                         </div>
                      </div>
+					</span>
+					</div>              
                   </li>
 	</script>			
 
@@ -211,10 +215,6 @@ Author: Prasanna Bhale
                         </div>
                      </div>
 					</span>
-					<span class="option_open_class">
-					<a href="#" class="group_chat_option_popover_class" placement="auto left" title="Popover Header" data-content="Some content inside the popover"></a>
-					<span class="fa fa-cog group_chat_option_class" aria-hidden="true"></span>
-    				</span>
 					</div>              
 	</li>
 	</script>			

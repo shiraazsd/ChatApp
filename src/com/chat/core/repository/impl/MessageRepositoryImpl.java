@@ -2,6 +2,7 @@ package com.chat.core.repository.impl;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -225,18 +226,9 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 	public void create(String fromUser, String toUser, String messageText) throws SQLException {
 		User from = userRepository.getUserByEmail(fromUser);		
 		User to = userRepository.getUserByEmail(toUser);
-		Message message = new Message();
-		message.setUserFrom(from);
-		message.setUserTo(to);
-		message.setDescriptionMessage(messageText);
-		try {
-			create(message);
-		} catch (SQLException e) {
-			LOGGER.error("fail to the create", e);
-			throw new SQLException("fail to the create", e);			
-		} finally {
-			closeConections();
-		}
+		UserStatusDto fromDto = new UserStatusDto(from.getId(), from.getEmail(), Constants.OFFLINE);
+		UserStatusDto toDto = new UserStatusDto(to.getId(), to.getEmail(), Constants.OFFLINE);
+		create(from.getId(), Arrays.asList(fromDto, toDto), messageText, null);
 	}
 
 	@Override
@@ -256,7 +248,7 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 			}
 			executeBatch(sql, batchParamList);
 		} catch (Exception e) {
-			throw new SQLException("fail findById user", e);
+			throw new SQLException("failed to insert messages", e);
 		} finally {
 			closeConections();
 		}
@@ -279,7 +271,8 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 	public List<Message> getLastFewMessages(String fromUser, String toUser, int limit) throws SQLException {		
 		try {
 			sql = "select id_message, id_team, fu.id_user as from_id, tu.id_user as to_id, fu.email as from_email, tu.email as to_email, content, status_message, m.message_time from message m " +
-				  " inner join user fu on m.id_user_from = fu.id_user inner join user tu on m.id_user = tu.id_user where ((tu.email = ':user_to' and fu.email = ':user_from') or (fu.email = ':user_to' and tu.email = ':user_from')) and m.groupchat_id IS NULL order by id_message desc limit :limit";			
+				  " inner join user fu on m.id_user_from = fu.id_user inner join user tu on m.id_user = tu.id_user where ((fu.email = ':user_from' and tu.email = ':user_from') or (fu.email = ':user_to' and tu.email = ':user_from')) and m.groupchat_id IS NULL order by id_message desc ";			
+			sql += limit != -1 ? "limit :limit" : "";
 			Map<String, Object> parameters = new HashMap<>();
 			parameters.put(":user_to", toUser);
 			parameters.put(":user_from", fromUser);

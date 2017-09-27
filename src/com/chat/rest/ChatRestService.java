@@ -193,7 +193,7 @@ public class ChatRestService {
 	@GET
 	@Path("/clearGroupChatHistory")
 	@Produces(MediaType.APPLICATION_JSON)
-	public int clearGroupChatHistory(@QueryParam("chatId") final Long groupChatId, @QueryParam("loggedInUser") final String loggedInUser) {
+	public Long clearGroupChatHistory(@QueryParam("chatId") final Long groupChatId, @QueryParam("loggedInUser") final String loggedInUser) {
 		try {
 			List<Message> messageList = messageRepository.getLastFewMessagesForGroupChat(loggedInUser, groupChatId, -1);
 			List<Long> idList = new ArrayList<Long>();
@@ -205,7 +205,25 @@ public class ChatRestService {
 			System.out.println("Unable to update message status to Read");
 			e.printStackTrace();
 		}
-		return -1;
+		return groupChatId;
+	}
+
+	@GET
+	@Path("/clearPersonalChatHistory")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String clearPersonalChatHistory(@QueryParam("loggedInUser") final String loggedInUser, @QueryParam("toUser") final String toUser) {
+		try {
+			List<Message> messageList = messageRepository.getLastFewMessages(loggedInUser, toUser, -1);
+			List<Long> idList = new ArrayList<Long>();
+			for(Message message : messageList) {
+				idList.add(message.getId());
+			}
+			messageRepository.deleteMessages(idList);
+		} catch (SQLException e) {
+			System.out.println("Unable to update message status to Read");
+			e.printStackTrace();
+		}
+		return toUser;
 	}
 	
 	@GET

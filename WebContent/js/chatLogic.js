@@ -100,6 +100,7 @@ var performContactListUserClickActionOnContext = function(user) {
 		var id = getChatWindowId(getElementIdSuffix(user));
 		$('#'+id).find('.chat_input').focus();		
 	} else {
+		unsetBlankChatBox();		
 		setOpenInboxChat(user, user, USER);			
 		setInboxChatUser(user);		
 		populateInboxChatHistory(user);		
@@ -112,12 +113,21 @@ var setOpenInboxChat = function(name, id, type) {
 	
 };
 
+var getOpenInboxChat = function() {
+	return JSON.parse(sessionStorage.getItem(OPEN_INBOX_CHAT));	
+}
+
+var resetOpenInboxChat = function() {
+	sessionStorage.setItem(OPEN_INBOX_CHAT, JSON.stringify({id : '', type : ''}));	
+};
+
 var performGroupChatListClickActionOnContext = function(chatId, chatName) {
 	if(isChatContext()) {
 		createNewGroupChatBox(chatId, chatName);
 		var id = getChatWindowId(getElementIdSuffix(chatId));
 		$('#'+id).find('.chat_input').focus();	
 	} else {
+		unsetBlankChatBox();		
 		setOpenInboxChat(chatName, chatId, CHAT);							
 		setInboxGroupChat(chatId, chatName);
 		populateGroupChatInboxHistory(chatId);		
@@ -417,7 +427,7 @@ var initializeSessionStorage = function() {
 		sessionStorage.setItem(OPEN_CHAT_USERS, JSON.stringify([]));
 	}
 	if(sessionStorage.getItem(OPEN_INBOX_CHAT) == null || getLoggedInUser() == "") {
-		sessionStorage.setItem(OPEN_INBOX_CHAT, JSON.stringify({id : '', type : ''}));
+		resetOpenInboxChat();		
 	}	
 };
 
@@ -465,12 +475,14 @@ var createOpenChatUsersChatBox = function() {
 
 var createOpenInboxChat = function() {
 	if(isChatContext()) return;
-	var data = JSON.parse(sessionStorage.getItem(OPEN_INBOX_CHAT));
+	var data = getOpenInboxChat();
 	if(data.type == USER) {
 		performContactListUserClickActionOnContext(data.id);		
 	} else if (data.type == CHAT) {
 		performGroupChatListClickActionOnContext(data.id, data.name);		
-	}	
+	} else {
+		setBlankChatBox();
+	}
 };
 
 
@@ -676,7 +688,7 @@ var createNewGroupChat = function() {
 };
 
 var updateGroupChat = function(chatId, chatNameNew) {
-	var createNewGroupChatApiUrl = restAPiContext + "chat/updateGroupChat?chatId=" + chatId + "&chatNameNew=" + chatNameNew; 
+	var createNewGroupChatApiUrl = restApiContext + "chat/updateGroupChat?chatId=" + chatId + "&chatNameNew=" + chatNameNew; 
 	$.getJSON(createNewGroupChatApiUrl,
 			   function(data) {
 				loadUserContactList();			
@@ -688,7 +700,22 @@ var clearGroupChatHistory = function(chatId) {
 	var clearGroupChatHistoryApiUrl = restApiContext + "chat/clearGroupChatHistory?chatId=" + chatId + "&loggedInUser=" + loggedInUser; 
 	$.getJSON(clearGroupChatHistoryApiUrl,
 			   function(data) {
+				loadUserContactList();
+				if(getOpenInboxChat().id == data) {
+					populateGroupChatInboxHistory(data);					
+				}
+	});	
+};
+
+var clearPersonalChatHistory = function(user) {
+	var loggedInUser = getLoggedInUser();
+	var clearPersonalChatHistoryApiUrl = restApiContext + "chat/clearPersonalChatHistory?loggedInUser=" + loggedInUser + "&toUser=" + user; 
+	$.getJSON(clearPersonalChatHistoryApiUrl,
+			   function(data) {
 				loadUserContactList();			
+				if(getOpenInboxChat().id == data) {
+					populateInboxChatHistory(data);					
+				}				
 	});	
 };
 
@@ -697,8 +724,12 @@ var leaveGroupChatHistory = function(chatId) {
 	var leaveGroupChatApiUrl = restApiContext + "chat/leaveGroupChat?chatId=" + chatId + "&loggedInUser=" + loggedInUser; 
 	$.getJSON(leaveGroupChatApiUrl,
 			   function(data) {
-				loadUserContactList();			
-	});	
+				loadUserContactList();	
+	});
+	if(getOpenInboxChat().id == chatId) {
+		resetOpenInboxChat();
+		setBlankChatBox();				
+	}	
 };
 
 var createNewGroupChatBox = function(chatId, chatName) {
@@ -826,4 +857,14 @@ var clearSideBarFilter = function() {
 
 var triggerSideBarFilter = function() {
 	$('#searchSideBar').keyup();
+};
+
+var setBlankChatBox = function() {
+	$('#actualChatBox').hide();
+	$('#blankChatBox').show();
+};
+
+var unsetBlankChatBox = function() {
+	$('#actualChatBox').show();
+	$('#blankChatBox').hide();
 };

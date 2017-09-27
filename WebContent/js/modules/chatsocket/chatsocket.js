@@ -154,25 +154,30 @@ var chatsocket = function() {
 		$('#inputMessageContent').unbind('keypress');
 		$('.chat_input').unbind('keypress');
 		$('#userListCategory').find('li').unbind('click');
-		$('#contactList').find('.user_list_entry').unbind('click');
+		$('#contactList').find('.user_list_entry').find('.chat_box_open_class').unbind('click');
 		$('#contactList').find('.group_chat_list_entry').find('.chat_box_open_class').unbind('click');
 		$('.personal_chat_window').find('.chat_input').unbind('focus');			
-		$('#inputMessageContent').unbind('focus');
+		$('#inputMessageContent').unbind('focus');			
 		$('.group_chat_window').find('.chat_input').unbind('focus');			
 		$('#newGroupChat').unbind('click');
-		$('.panel-title-groupchat').find('.chat_box_heading_text').unbind('click');
+		$('.panel-title-groupchat').find('.group_chat_name_edit').unbind('click');
 		$('.panel-title-groupchat').find('.chat_box_heading_text').unbind('blur');
 		$('.chat_box_heading_text').unbind('keypress');
 		$('.selectGroupChatUser').unbind('click');
 		$('#groupChatUserSelection').unbind('shown.bs.modal');
 		$('#groupChatUserSelection').find('i').unbind('click');
 		$('#contactList').find('.group_chat_list_entry').find('.option_open_class').unbind('click');
+		$('#contactList').find('.user_list_entry').find('.option_open_class').unbind('click');
 		$('#clearGroupChat').unbind('click');
+		$('#clearPersonalChat').unbind('click');
 		$('#leaveGroupChat').unbind('click');
-		$('#inboxGroupChatName').unbind('click');
+		$('#editGroupChat').unbind('click');	
 		$('#inboxGroupChatName').unbind('blur');
 		$('#inboxGroupChatName').unbind('keypress');
 		$('#searchSideBar').unbind('keyup');
+		$('.panel-title-groupchat').find('.chat_box_heading_text').unbind('click');
+		$('.panel-title-personalchat').find('.chat_box_heading_text').unbind('click');
+		$('.msg_container_base').unbind('scroll');
 		
 		
 		$('.personal_chat_window').find('.btn-chat-send').click(function() {
@@ -207,8 +212,8 @@ var chatsocket = function() {
 			$('#userListCategory').attr("data-current-selection", type);			
 			loadUserContactList(type);
 		});				
-		$('#contactList').find('.user_list_entry').click(function() {
-			var selectedUserEmail = $(this).attr('data-id-email');
+		$('#contactList').find('.user_list_entry').find('.chat_box_open_class').click(function() {
+			var selectedUserEmail = $(this).closest('.user_list_entry').attr('data-id-email');
 			performContactListUserClickActionOnContext(selectedUserEmail);
 		});
 		$('#contactList').find('.group_chat_list_entry').find('.chat_box_open_class').click(function() {
@@ -301,11 +306,23 @@ var chatsocket = function() {
 			$('#groupChatOption').attr('data-chat-id', chatId);			
 			$('#groupChatOption').modal('show');				
 		});
+		$('#contactList').find('.user_list_entry').find('.option_open_class').click(function() {
+			var user = $(this).closest('.user_list_entry').attr('data-id-email');
+			$('#personalChatOption').attr('data-user-email', user);			
+			$('#personalChatOption').modal('show');				
+		});
 		$('#clearGroupChat').click( function(e) {
 			var chatId = $(this).closest('#groupChatOption').attr('data-chat-id');
 			clearGroupChatHistory(chatId);
 			$('#groupChatOption').modal('hide');
 			closeGroupChatWindow(chatId);			
+			
+		});
+		$('#clearPersonalChat').click( function(e) {
+			var user = $(this).closest('#personalChatOption').attr('data-user-email');
+			clearPersonalChatHistory(user);
+			$('#personalChatOption').modal('hide');
+//			closeGroupChatWindow(chatId);			
 			
 		});
 		$('#leaveGroupChat').click( function(e) {
@@ -353,10 +370,21 @@ var chatsocket = function() {
 			setOpenInboxChat(user, user, USER);
 			window.location = "./inbox.xhtml";			
 		});
+		$('.msg_container_base').scroll(function() {
+		    var pos = $(this).scrollTop();
+		    if (pos <= 5) {	
+		    	var el = $(this).closest('.chat-window').find('.chat_box_heading_text');
+		    	el.tooltip({container: 'body'});
+		    	el.tooltip('show'); 		    	
+		    	setTimeout(function(){
+	    	        el.tooltip('hide');
+	    	    }, 5000);
+		    } 
+		});
 
 		
 	};
-
+	
 	return {
 		initEvent : function() {
 			connect();
