@@ -209,7 +209,9 @@ var chatsocket = function() {
 
 		$('#userListCategory').find('li').click(function() {
 			var type = $(this).attr("data-id");
-			$('#userListCategory').attr("data-current-selection", type);			
+			$('#userListCategory').attr("data-current-selection", type);
+			var value = $(this).find('a').text();
+			$('#userListSelectionId').text(value);
 			loadUserContactList(type);
 		});				
 		$('#contactList').find('.user_list_entry').find('.chat_box_open_class').click(function() {
@@ -372,7 +374,12 @@ var chatsocket = function() {
 		});
 		$('.msg_container_base').scroll(function() {
 		    var pos = $(this).scrollTop();
-		    if (pos <= 5) {	
+			var limit = GROUP_CHAT_MESSAGE_LIMIT;
+			var count = $(this).children().length ;
+		    if($(this).closest('.personal_chat_window').length != 0) {	
+		    	limit = PERSONAL_CHAT_MESSAGE_LIMIT;
+			}
+		    if (pos <= 5 && count>= limit) {			    	
 		    	var el = $(this).closest('.chat-window').find('.chat_box_heading_text');
 		    	el.tooltip({container: 'body'});
 		    	el.tooltip('show'); 		    	

@@ -13,6 +13,10 @@ var restApiContext = "../rest/"
 var USER = 'user';
 var CHAT = 'chat;'
 
+var PERSONAL_CHAT_MESSAGE_LIMIT = 8;
+var GROUP_CHAT_MESSAGE_LIMIT = 20;
+
+
 var OPEN_CHAT_USERS = "openChatUsers";
 var OPEN_INBOX_CHAT = "openInboxChat";
 
