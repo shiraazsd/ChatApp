@@ -38,4 +38,7 @@ public interface MessageRepository extends CrudRepository<Message>{
 			throws SQLException;
 
 	int deleteMessages(List<Long> idList) throws SQLException;
+
+	void create(Long fromUser, Long toUser, String messageText)
+			throws SQLException;
 }

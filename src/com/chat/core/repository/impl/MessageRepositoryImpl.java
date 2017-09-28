@@ -226,9 +226,7 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 	public void create(String fromUser, String toUser, String messageText) throws SQLException {
 		User from = userRepository.getUserByEmail(fromUser);		
 		User to = userRepository.getUserByEmail(toUser);
-		UserStatusDto fromDto = new UserStatusDto(from.getId(), from.getEmail(), Constants.OFFLINE);
-		UserStatusDto toDto = new UserStatusDto(to.getId(), to.getEmail(), Constants.OFFLINE);
-		create(from.getId(), Arrays.asList(fromDto, toDto), messageText, null);
+		create(from.getId(), to.getId(), messageText);
 	}
 
 	@Override
@@ -255,6 +253,30 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 	}
 
 	@Override
+	public void create(Long fromUser, Long toUser, String messageText) throws SQLException {
+		try {
+			sql = "insert into message(id_user, id_user_from, content, status_message, user_copy) values (? , ?, ?, ?, ?)";
+
+			List<Map<Integer, Object>> batchParamList = new ArrayList<Map<Integer,Object>>();
+			Map<Integer, Object> parameters = new HashMap<>();
+			parameters.put(1, toUser);
+			parameters.put(2, fromUser);
+			parameters.put(3, messageText);
+			parameters.put(4, Constants.UNREAD);
+			parameters.put(5, fromUser);
+			batchParamList.add(parameters);
+			parameters = new HashMap<Integer, Object>(parameters);
+			parameters.put(5, toUser);
+			batchParamList.add(parameters);
+			executeBatch(sql, batchParamList);
+		} catch (Exception e) {
+			throw new SQLException("failed to insert messages", e);
+		} finally {
+			closeConections();
+		}
+	}
+	
+	@Override
 	public void create(String fromUser, String messageText, Long groupChatId) throws SQLException {
 		try {
 			User fromId = userRepository.getUserByEmail(fromUser);					
@@ -271,7 +293,7 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 	public List<Message> getLastFewMessages(String fromUser, String toUser, int limit) throws SQLException {		
 		try {
 			sql = "select id_message, id_team, fu.id_user as from_id, tu.id_user as to_id, fu.email as from_email, tu.email as to_email, content, status_message, m.message_time from message m " +
-				  " inner join user fu on m.id_user_from = fu.id_user inner join user tu on m.id_user = tu.id_user where ((fu.email = ':user_from' and tu.email = ':user_from') or (fu.email = ':user_to' and tu.email = ':user_from')) and m.groupchat_id IS NULL order by id_message desc ";			
+				  " inner join user fu on m.id_user_from = fu.id_user inner join user tu on m.id_user = tu.id_user inner join user uc on m.user_copy =  uc.id_user where ((fu.email = ':user_from' and tu.email = ':user_to') or (fu.email = ':user_to' and tu.email = ':user_from')) and uc.email = ':user_from' and m.groupchat_id IS NULL order by id_message desc ";			
 			sql += limit != -1 ? "limit :limit" : "";
 			Map<String, Object> parameters = new HashMap<>();
 			parameters.put(":user_to", toUser);
@@ -311,7 +333,7 @@ public class MessageRepositoryImpl extends Dao implements MessageRepository {
 	@Override
 	public Map<String, Integer> getUnreadMessageCount(String user) throws SQLException {
 		try {
-			sql = "select f.email as userFrom, count(*) as count from message m inner join user t on m.id_user = t.id_user inner join user f on m.id_user_from = f.id_user where t.email = ':user' and status_message = :message_status and m.groupchat_id IS NULL group by f.email"; 						
+			sql = "select f.email as userFrom, count(*) as count from message m inner join user t on m.id_user = t.id_user inner join user f on m.id_user_from = f.id_user inner join user uc on m.user_copy = uc.id_user where t.email = ':user' and uc.email = ':user' and status_message = :message_status  and m.groupchat_id IS NULL group by f.email"; 						
 			Map<String, Object> parameters = new HashMap<>();
 			parameters.put(":user", user);
 			parameters.put(":message_status", Constants.UNREAD);			

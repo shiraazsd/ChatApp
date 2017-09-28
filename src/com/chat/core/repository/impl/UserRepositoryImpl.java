@@ -269,7 +269,12 @@ public class UserRepositoryImpl extends Dao implements UserRepository {
 	@Override
 	public List<User> getRecentUserList(String user) throws SQLException {
 		try {
-			sql = "select f.email, f.id_user, f.password, f.id_roler from message m inner join user t on m.id_user = t.id_user inner join user f on m.id_user_from = f.id_user where t.email = ':user' group by f.email"; 						
+			sql = "select f.email, f.id_user, f.password, f.id_roler from message m inner join user t on m.id_user = t.id_user "
+					+ "inner join user f on m.id_user_from = f.id_user where t.email = ':user' group by f.email "
+					+ " UNION "
+					+ " select t.email, t.id_user, t.password, t.id_roler from message m inner join user t on m.id_user = t.id_user "
+					+ " inner join user f on m.id_user_from = f.id_user where f.email = ':user' group by t.email ";
+			
 			Map<String, Object> parameters = new HashMap<>();
 			parameters.put(":user", user);
 			return getUsersByRS(getResulsetOf(ReplaceQueryParams(sql, parameters)));
