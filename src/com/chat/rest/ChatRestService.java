@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -55,11 +56,11 @@ public class ChatRestService {
 	@GET
 	@Path("/chatMessages")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ChatMessageResponseDto getMessageFromToUser(@QueryParam("from") final String from, @QueryParam("to") final String to) { {
+	public ChatMessageResponseDto getMessageFromToUser(@QueryParam("from") final String from, @QueryParam("to") final String to, @DefaultValue("-1") @QueryParam("limit") final int limit) { {
 		ChatMessageResponseDto response = new ChatMessageResponseDto();
 		List<MessageDto> result = null;
 		try {
-			List<Message> messageList = messageRepository.getLastFewMessages(from, to, Constants.CHAT_MESSAGE_LIMIT);
+			List<Message> messageList = messageRepository.getLastFewMessages(from, to, limit);
 			result = getDtoUtil().convertIntoDto(messageList);
 			response.setFrom(from);
 			response.setTo(to);
@@ -286,11 +287,11 @@ public class ChatRestService {
 	@GET
 	@Path("/groupChatMessages")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ChatMessageResponseDto getMessageFromToGroupChat(@QueryParam("user") final String user, @QueryParam("chatId") final Long groupChatId) { 
+	public ChatMessageResponseDto getMessageFromToGroupChat(@QueryParam("user") final String user, @QueryParam("chatId") final Long groupChatId, @DefaultValue("-1") @QueryParam("limit") final int limit) { 
 		ChatMessageResponseDto response = new ChatMessageResponseDto();
 		List<MessageDto> result = null;
 		try {
-			List<Message> messageList = messageRepository.getLastFewMessagesForGroupChat(user, groupChatId, Constants.GROUP_CHAT_MESSAGE_LIMIT);
+			List<Message> messageList = messageRepository.getLastFewMessagesForGroupChat(user, groupChatId, limit);
 			result = getDtoUtil().convertIntoDto(messageList);
 			response.setFrom(String.valueOf(groupChatId));
 			response.setTo(user);

@@ -169,7 +169,7 @@ var createNewChatBox = function(selectedUserEmail) {
 
 var populateChatHistory = function(toUser) {
 	var fromUser = getLoggedInUser();
-	var chatMessageHistoryApiUrl = restApiContext + "chat/chatMessages?from=" + fromUser + "&to=" + toUser; 
+	var chatMessageHistoryApiUrl = restApiContext + "chat/chatMessages?from=" + fromUser + "&to=" + toUser  + "&limit=" + PERSONAL_CHAT_MESSAGE_LIMIT; 
 	$.getJSON(chatMessageHistoryApiUrl,
 			   function(data) {
 				 var toUser = data.to;
@@ -301,7 +301,7 @@ var populateGroupChatInboxHistory = function(chatId) {
 
 var populateGroupChatHistory = function(chatId) {
 	var loggedInUser = getLoggedInUser();
-	var groupChatMessageHistoryApiUrl = restApiContext + "chat/groupChatMessages?user=" + loggedInUser + "&chatId=" + chatId; 
+	var groupChatMessageHistoryApiUrl = restApiContext + "chat/groupChatMessages?user=" + loggedInUser + "&chatId=" + chatId + "&limit=" + GROUP_CHAT_MESSAGE_LIMIT; 
 	$.getJSON(groupChatMessageHistoryApiUrl,
 			   function(data) {
 				 var loggedInUser = getLoggedInUser();
